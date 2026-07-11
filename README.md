@@ -29,8 +29,20 @@ A comprehensive, automated profit calculator for RuneScape 3 Invention Machines.
    python InventionMachineMargins.py
    ```
 
-## Compiling to Standalone EXE
-If you want to package the app into a standalone `.exe` so you don't need Python installed, use PyInstaller:
+## Downloading Compiled Apps (Windows, macOS, Linux)
+This repository is configured with **GitHub Actions**. Every time the code is updated, standalone applications are automatically compiled for Windows, macOS, and Linux. You don't need Python installed to run these!
+
+To download the latest compiled version:
+1. Go to the **Actions** tab at the top of the repository.
+2. Click on the most recent successful workflow run (look for the green checkmark).
+3. Scroll down to the **Artifacts** section at the bottom of the page.
+4. Click to download the version for your operating system:
+   - `InventionMachineMargins-windows-latest` (contains the Windows `.exe`)
+   - `InventionMachineMargins-macos-latest` (contains the Mac `.app` bundle)
+   - `InventionMachineMargins-ubuntu-latest` (contains the Linux binary)
+
+## Manual Local Compilation
+If you prefer to compile the application locally yourself using PyInstaller:
 ```bash
 pip install pyinstaller
 python -m PyInstaller --noconfirm --onefile --windowed --icon=app_icon.ico --name InventionMachineMargins InventionMachineMargins.py
