@@ -38,20 +38,61 @@ jobs:
     - name: Build with PyInstaller (Windows)
       if: runner.os == 'Windows'
       run: |
-        pyinstaller --noconfirm --onefile --windowed --icon=app_icon.ico --name InventionMachineMargins InventionMachineMargins.py
+        pyinstaller --noconfirm --onefile --windowed --icon=app_icon.ico --name InventionMachineMargins-Windows InventionMachineMargins.py
 
     - name: Build with PyInstaller (macOS)
       if: runner.os == 'macOS'
       run: |
         pyinstaller --noconfirm --onefile --windowed --icon=app_icon.icns --name InventionMachineMargins InventionMachineMargins.py
+        cd dist
+        zip -r InventionMachineMargins-macOS.zip InventionMachineMargins.app
 
     - name: Build with PyInstaller (Linux)
       if: runner.os == 'Linux'
       run: |
-        pyinstaller --noconfirm --onefile --windowed --icon=app_icon.png --name InventionMachineMargins InventionMachineMargins.py
+        pyinstaller --noconfirm --onefile --windowed --icon=app_icon.png --name InventionMachineMargins-Linux InventionMachineMargins.py
 
-    - name: Upload Artifact
+    - name: Upload Artifact (Windows)
+      if: runner.os == 'Windows'
       uses: actions/upload-artifact@v4
       with:
-        name: InventionMachineMargins-${{ matrix.os }}
-        path: dist/InventionMachineMargins*
+        name: binary-windows
+        path: dist/InventionMachineMargins-Windows.exe
+
+    - name: Upload Artifact (macOS)
+      if: runner.os == 'macOS'
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary-macos
+        path: dist/InventionMachineMargins-macOS.zip
+
+    - name: Upload Artifact (Linux)
+      if: runner.os == 'Linux'
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary-linux
+        path: dist/InventionMachineMargins-Linux
+
+  release:
+    name: Publish to GitHub Releases
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release_assets
+          merge-multiple: true
+
+      - name: Create or Update Release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: "latest"
+          name: "Latest Automated Build"
+          body: "This is an automatically generated release containing the latest compiled versions for Windows, macOS, and Linux."
+          artifacts: "release_assets/*"
+          allowUpdates: true
+          replacesArtifacts: true
+          commit: ${{ github.sha }}
