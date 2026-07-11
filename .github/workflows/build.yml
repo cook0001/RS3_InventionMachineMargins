@@ -40,10 +40,15 @@ jobs:
       run: |
         pyinstaller --noconfirm --onefile --windowed --icon=app_icon.ico --name InventionMachineMargins InventionMachineMargins.py
 
-    - name: Build with PyInstaller (macOS & Linux)
-      if: runner.os != 'Windows'
+    - name: Build with PyInstaller (macOS)
+      if: runner.os == 'macOS'
       run: |
-        pyinstaller --noconfirm --onefile --windowed --name InventionMachineMargins InventionMachineMargins.py
+        pyinstaller --noconfirm --onefile --windowed --icon=app_icon.icns --name InventionMachineMargins InventionMachineMargins.py
+
+    - name: Build with PyInstaller (Linux)
+      if: runner.os == 'Linux'
+      run: |
+        pyinstaller --noconfirm --onefile --windowed --icon=app_icon.png --name InventionMachineMargins InventionMachineMargins.py
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
