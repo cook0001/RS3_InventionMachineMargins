@@ -2,59 +2,75 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invention Machine Margins</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0f1115;
-            --surface-color: rgba(255, 255, 255, 0.05);
-            --surface-hover: rgba(255, 255, 255, 0.08);
-            --text-primary: #f3f4f6;
-            --text-secondary: #9ca3af;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --profit-color: #10b981;
-            --bottleneck-color: #ef4444;
+            --bg-base: #0B0E14;
+            --bg-surface: rgba(22, 27, 34, 0.6);
+            --bg-surface-hover: rgba(30, 36, 45, 0.8);
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --border: rgba(255, 255, 255, 0.1);
+            --profit: #10B981;
+            --loss: #EF4444;
+            --brand: #38BDF8;
+            --brand-glow: rgba(56, 189, 248, 0.3);
+            --bottleneck: #F59E0B;
+            --radius: 12px;
+            --font-main: 'Outfit', sans-serif;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: transparent; 
+            font-family: var(--font-main);
+            background: transparent;
             color: var(--text-primary);
-            overflow: hidden; 
+            overflow: hidden;
         }
-        
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.3); }
+
         .app-container {
             width: 100vw;
             height: 100vh;
-            background: linear-gradient(145deg, rgba(15, 17, 21, 0.95), rgba(20, 24, 30, 0.95));
+            background: linear-gradient(135deg, #0B0E14 0%, #111827 100%);
             backdrop-filter: blur(10px);
             display: flex;
             flex-direction: column;
-            border-right: 1px solid var(--border-color);
+            border-right: 1px solid var(--border);
         }
 
+        /* Header */
         header {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--border);
             display: flex;
             justify-content: space-between;
             align-items: center;
             background: rgba(0, 0, 0, 0.2);
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
         }
 
         h1 {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: 600;
-            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            background: linear-gradient(90deg, #38BDF8, #818CF8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
         }
 
         .status {
@@ -62,244 +78,573 @@
             color: var(--text-secondary);
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
+            font-weight: 500;
         }
 
         .status-dot {
             width: 8px;
             height: 8px;
-            background-color: var(--profit-color);
+            background-color: var(--profit);
             border-radius: 50%;
-            box-shadow: 0 0 8px var(--profit-color);
-            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px var(--profit);
+            transition: background-color 0.3s;
+        }
+        .status-dot.loading {
+            background-color: var(--bottleneck);
+            box-shadow: 0 0 10px var(--bottleneck);
+            animation: pulse 1.5s infinite;
+        }
+        .status-dot.error {
+            background-color: var(--loss);
+            box-shadow: 0 0 10px var(--loss);
         }
 
         @keyframes pulse {
             0% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.5; transform: scale(1.2); }
+            50% { opacity: 0.6; transform: scale(1.2); }
             100% { opacity: 1; transform: scale(1); }
         }
 
-        .table-container {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 12px;
+        .header-controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
         }
 
-        .table-container::-webkit-scrollbar {
-            width: 6px;
-        }
-        .table-container::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .table-container::-webkit-scrollbar-thumb {
-            background: var(--surface-hover);
-            border-radius: 4px;
-        }
-
-        .item-card {
-            background: var(--surface-color);
-            border: 1px solid var(--border-color);
+        button.icon-btn {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            width: 36px;
+            height: 36px;
             border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 10px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.2s;
+            font-size: 16px;
+        }
+        button.icon-btn:hover {
+            background: rgba(255,255,255,0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Navigation */
+        .nav-scroll {
+            overflow-x: auto;
+            border-bottom: 1px solid var(--border);
+            background: rgba(0,0,0,0.1);
+        }
+        .nav-tabs {
+            display: flex;
+            padding: 0 16px;
+            gap: 8px;
+            width: max-content;
+        }
+        .tab {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 12px 16px;
+            font-family: var(--font-main);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: color 0.2s;
+        }
+        .tab:hover { color: var(--text-primary); }
+        .tab.active { color: var(--brand); }
+        .tab.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 2px;
+            background: var(--brand);
+            box-shadow: 0 -2px 10px var(--brand-glow);
+            border-radius: 2px 2px 0 0;
+        }
+
+        /* Toolbar */
+        .toolbar {
+            padding: 12px 24px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            transition: all 0.2s ease;
+            background: rgba(0,0,0,0.15);
+            border-bottom: 1px solid var(--border);
+            flex-shrink: 0;
         }
-
-        .item-card:hover {
-            background: var(--surface-hover);
-            transform: translateY(-1px);
-            border-color: rgba(255, 255, 255, 0.2);
+        
+        .sort-select {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-family: var(--font-main);
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
         }
-
-        .item-info {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-
-        .item-name {
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .machine-name {
-            font-size: 11px;
+        .sort-select:focus { border-color: var(--brand); }
+        
+        .tab-desc {
+            font-size: 13px;
             color: var(--text-secondary);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .profit-info {
+        /* Main Content */
+        .content {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 16px 24px;
+            position: relative;
+        }
+
+        .card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 16px;
+            margin-bottom: 12px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .card:hover {
+            background: var(--bg-surface-hover);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 3px;
+            background: var(--brand);
+            opacity: 0.5;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .item-icon {
+            width: 32px;
+            height: 32px;
+            object-fit: contain;
+            background: rgba(0,0,0,0.3);
+            border-radius: 6px;
+            padding: 2px;
+            border: 1px solid var(--border);
+        }
+
+        .item-info { display: flex; flex-direction: column; gap: 4px; }
+        
+        .item-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+        
+        .tags { display: flex; gap: 8px; align-items: center; }
+        
+        .tag {
+            font-size: 11px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: 500;
+            background: rgba(255,255,255,0.05);
+            color: var(--text-secondary);
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        .tag.bottleneck {
+            color: var(--bottleneck);
+            background: rgba(245, 158, 11, 0.1);
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        .card-right {
             display: flex;
             flex-direction: column;
             align-items: flex-end;
             gap: 4px;
         }
-
+        
         .profit-day {
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--profit-color);
+            font-size: 15px;
+            font-weight: 700;
         }
-
-        .profit-item {
-            font-size: 11px;
+        .profit-day.positive { color: var(--profit); }
+        .profit-day.negative { color: var(--loss); }
+        
+        .profit-ea {
+            font-size: 12px;
             color: var(--text-secondary);
         }
 
-        .loader {
+        .card-details {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--border);
+            font-size: 13px;
+            color: var(--text-secondary);
+            line-height: 1.5;
+            animation: slideDown 0.3s ease;
+        }
+        .card.expanded .card-details { display: block; }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Settings Modal */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal-overlay.open { display: flex; }
+        
+        .modal {
+            background: #111827;
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 400px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .modal h2 { margin-bottom: 20px; font-size: 18px; }
+        
+        .form-group {
+            margin-bottom: 16px;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .form-group label { font-size: 14px; color: var(--text-secondary); }
+        
+        .form-input {
+            background: rgba(0,0,0,0.3);
+            border: 1px solid var(--border);
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: var(--font-main);
+            width: 120px;
+            outline: none;
+        }
+        .form-input:focus { border-color: var(--brand); }
+        
+        .modal-close {
+            background: var(--brand);
+            color: #000;
+            border: none;
+            padding: 10px 0;
+            width: 100%;
+            border-radius: 6px;
+            font-weight: 600;
+            margin-top: 10px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+        .modal-close:hover { opacity: 0.9; }
+
+        /* Loader */
+        .loader-wrapper {
+            display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             height: 100%;
             color: var(--text-secondary);
             font-size: 14px;
+            gap: 16px;
         }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--brand);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
     <div class="app-container">
         <header>
-            <div>
+            <div class="header-title">
                 <h1>Invention Margins</h1>
                 <div class="status">
-                    <div class="status-dot"></div>
-                    <span id="status-text">Fetching...</span>
+                    <div class="status-dot" id="status-dot"></div>
+                    <span id="status-text">Fetching prices...</span>
                 </div>
             </div>
-            <div style="display: flex; gap: 10px; align-items: center;">
-                <label style="font-size: 11px; color: var(--text-secondary);">Tax
-                    <input type="checkbox" id="apply-tax" checked style="margin-left:4px; cursor: pointer;">
-                </label>
-                <label style="font-size: 11px; color: var(--text-secondary);">Junk Tier
-                    <input type="number" id="junk-tier" value="0" min="0" max="9" style="width:35px; margin-left:4px; background: rgba(0,0,0,0.3); border:1px solid var(--border-color); color:white; border-radius:3px; padding: 2px;">
-                </label>
+            <div class="header-controls">
+                <button class="icon-btn" onclick="fetchPrices()" title="Refresh">↻</button>
+                <button class="icon-btn" onclick="toggleSettings()" title="Settings">⚙</button>
             </div>
         </header>
-        <div class="table-container" id="data-container">
-            <div class="loader">Waiting for data...</div>
+
+        <div class="nav-scroll">
+            <div class="nav-tabs" id="tabs-container">
+                <button class="tab active" onclick="setTab('Dashboard')">Dashboard</button>
+                <button class="tab" onclick="setTab('Alchemiser')">Alchemiser</button>
+                <button class="tab" onclick="setTab('Plank Maker')">Plank Maker</button>
+                <button class="tab" onclick="setTab('Hide Tanner')">Hide Tanner</button>
+                <button class="tab" onclick="setTab('Potion Producer')">Potion Producer</button>
+                <button class="tab" onclick="setTab('Auto Disassembler')">Disassembler</button>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <span class="tab-desc" id="tab-desc">Top 25 Most Profitable Items</span>
+            <select class="sort-select" id="sort-select" onchange="setSort(this.value)">
+                <option value="day">Sort: Profit / Day</option>
+                <option value="item">Sort: Profit / Item</option>
+            </select>
+        </div>
+
+        <div class="content" id="data-container">
+            <div class="loader-wrapper">
+                <div class="spinner"></div>
+                <div>Fetching live GE data...</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="settings-modal" onclick="if(event.target===this) toggleSettings()">
+        <div class="modal">
+            <h2>Settings</h2>
+            <div class="form-group">
+                <label>Apply 2% GE Tax</label>
+                <input type="checkbox" id="setting-tax" onchange="saveSettings()" style="width:18px;height:18px;cursor:pointer;">
+            </div>
+            <div class="form-group">
+                <label>Junk Reduction Tier (0-9)</label>
+                <input type="number" id="setting-junk" class="form-input" min="0" max="9" onchange="saveSettings()">
+            </div>
+            <div class="form-group">
+                <label>Custom Divine Charge Price</label>
+                <input type="number" id="setting-charge" class="form-input" placeholder="Live GE Price" onchange="saveSettings()">
+            </div>
+            <button class="modal-close" onclick="toggleSettings()">Save & Close</button>
         </div>
     </div>
 
     <script>
+        // Constants & Data
         const MACHINE_CHARGES_PER_DIVINE_CHARGE = 3000;
-        const ALCHEMISER_ITEMS_PER_HOUR = 25;
-        const ALCH_CHARGES_PER_ITEM = 150 / 25;
-
-        const PLANK_MAKER_ITEMS_PER_HOUR = 40;
-        const PLANK_CHARGES_PER_ITEM = 600 / 40;
-
-        const DISASSEMBLER_ITEMS_PER_HOUR = 35;
-        const DISASSEMBLER_CHARGES_PER_ITEM = 180 / 35;
-
-        const TANNER_ITEMS_PER_HOUR = 140;
-        const TANNER_CHARGES_PER_ITEM = 225 / 140;
-
-        const POTION_ITEMS_PER_HOUR = 40;
-        const POTION_CHARGES_PER_ITEM = 210 / 40;
+        
+        const MACHINES = {
+            "Alchemiser": { iph: 25, cpi: 150/25, desc: "Processes 25 items/hr (600/day)." },
+            "Plank Maker": { iph: 40, cpi: 600/40, desc: "Processes 40 items/hr (960/day)." },
+            "Hide Tanner": { iph: 140, cpi: 225/140, desc: "Processes 140 hides/hr (3360/day)." },
+            "Potion Producer": { iph: 40, cpi: 210/40, desc: "Processes 40 items/hr (960/day)." },
+            "Auto Disassembler": { iph: 35, cpi: 180/35, desc: "Processes 35 items/hr (840/day)." }
+        };
 
         const DEFAULT_ALCH_ITEMS = [
-            {name: "Huge bladed rune salvage", alch: 40000},
-            {name: "Huge plated rune salvage", alch: 40000},
-            {name: "Huge blunt rune salvage", alch: 40000},
-            {name: "Huge bladed orikalkum salvage", alch: 60000},
-            {name: "Huge plated orikalkum salvage", alch: 60000},
-            {name: "Huge blunt orikalkum salvage", alch: 60000},
-            {name: "Huge bladed necronium salvage", alch: 80000},
-            {name: "Huge plated necronium salvage", alch: 80000},
-            {name: "Huge blunt necronium salvage", alch: 80000},
-            {name: "Large bladed rune salvage", alch: 16000},
-            {name: "Large plated rune salvage", alch: 16000},
-            {name: "Large blunt rune salvage", alch: 16000},
-            {name: "Dragon halberd", alch: 150000},
-            {name: "Dragon 2h sword", alch: 78000},
-            {name: "Dragon battleaxe", alch: 120000},
-            {name: "Onyx bolts (e)", alch: 5400},
-            {name: "Hydrix bolts (e)", alch: 6000},
-            {name: "Ascendri bolts (e)", alch: 6000},
-            {name: "Rune 2h sword", alch: 38400},
-            {name: "Rune platebody", alch: 39000},
-            {name: "Fire battlestaff", alch: 9300},
-            {name: "Water battlestaff", alch: 9300},
-            {name: "Mystic air staff", alch: 25500},
-            {name: "Mystic water staff", alch: 25500},
-            {name: "Grifolic wand", alch: 5000},
+            {name: "Huge bladed rune salvage", alch: 40000, limit: 100},
+            {name: "Huge plated rune salvage", alch: 40000, limit: 100},
+            {name: "Huge blunt rune salvage", alch: 40000, limit: 100},
+            {name: "Huge bladed orikalkum salvage", alch: 60000, limit: 100},
+            {name: "Huge plated orikalkum salvage", alch: 60000, limit: 100},
+            {name: "Huge blunt orikalkum salvage", alch: 60000, limit: 100},
+            {name: "Huge bladed necronium salvage", alch: 80000, limit: 100},
+            {name: "Huge plated necronium salvage", alch: 80000, limit: 100},
+            {name: "Huge blunt necronium salvage", alch: 80000, limit: 100},
+            {name: "Large bladed rune salvage", alch: 16000, limit: 1000},
+            {name: "Large plated rune salvage", alch: 16000, limit: 1000},
+            {name: "Large blunt rune salvage", alch: 16000, limit: 1000},
+            {name: "Dragon halberd", alch: 150000, limit: 10},
+            {name: "Dragon 2h sword", alch: 78000, limit: 10},
+            {name: "Dragon battleaxe", alch: 120000, limit: 10},
+            {name: "Onyx bolts (e)", alch: 5400, limit: 10000},
+            {name: "Hydrix bolts (e)", alch: 6000, limit: 10000},
+            {name: "Ascendri bolts (e)", alch: 6000, limit: 10000},
+            {name: "Rune 2h sword", alch: 38400, limit: 100},
+            {name: "Rune platebody", alch: 39000, limit: 100},
+            {name: "Fire battlestaff", alch: 9300, limit: 100},
+            {name: "Water battlestaff", alch: 9300, limit: 100},
+            {name: "Mystic air staff", alch: 25500, limit: 100},
+            {name: "Mystic water staff", alch: 25500, limit: 100},
+            {name: "Grifolic wand", alch: 5000, limit: 5000},
         ];
 
         const PLANK_RECIPES = [
-            {log: "Logs", plank: "Plank", coin_cost: 100},
-            {log: "Oak logs", plank: "Oak plank", coin_cost: 250},
-            {log: "Teak logs", plank: "Teak plank", coin_cost: 500},
-            {log: "Mahogany logs", plank: "Mahogany plank", coin_cost: 1500},
+            {log: "Logs", plank: "Plank", coin_cost: 100, limit: 10000},
+            {log: "Oak logs", plank: "Oak plank", coin_cost: 250, limit: 10000},
+            {log: "Teak logs", plank: "Teak plank", coin_cost: 500, limit: 10000},
+            {log: "Mahogany logs", plank: "Mahogany plank", coin_cost: 1500, limit: 10000},
         ];
 
         const TANNER_RECIPES = [
-            {hide: "Green dragonhide", leather: "Green dragon leather", coin_cost: 20},
-            {hide: "Blue dragonhide", leather: "Blue dragon leather", coin_cost: 20},
-            {hide: "Red dragonhide", leather: "Red dragon leather", coin_cost: 20},
-            {hide: "Black dragonhide", leather: "Black dragon leather", coin_cost: 20},
-            {hide: "Royal dragonhide", leather: "Royal dragon leather", coin_cost: 20},
-            {hide: "Dinosaurhide", leather: "Dinosaur leather", coin_cost: 20},
+            {hide: "Green dragonhide", leather: "Green dragon leather", coin_cost: 20, limit: 10000},
+            {hide: "Blue dragonhide", leather: "Blue dragon leather", coin_cost: 20, limit: 10000},
+            {hide: "Red dragonhide", leather: "Red dragon leather", coin_cost: 20, limit: 10000},
+            {hide: "Black dragonhide", leather: "Black dragon leather", coin_cost: 20, limit: 10000},
+            {hide: "Royal dragonhide", leather: "Royal dragon leather", coin_cost: 20, limit: 10000},
+            {hide: "Dinosaurhide", leather: "Dinosaur leather", coin_cost: 20, limit: 10000},
         ];
 
         const POTION_RECIPES = [
-            {herb: "Clean guam", potion: "Guam potion (unf)"},
-            {herb: "Clean tarromin", potion: "Tarromin potion (unf)"},
-            {herb: "Clean marrentill", potion: "Marrentill potion (unf)"},
-            {herb: "Clean harralander", potion: "Harralander potion (unf)"},
-            {herb: "Clean ranarr", potion: "Ranarr potion (unf)"},
-            {herb: "Clean toadflax", potion: "Toadflax potion (unf)"},
-            {herb: "Clean irit", potion: "Irit potion (unf)"},
-            {herb: "Clean avantoe", potion: "Avantoe potion (unf)"},
-            {herb: "Clean kwuarm", potion: "Kwuarm potion (unf)"},
-            {herb: "Clean snapdragon", potion: "Snapdragon potion (unf)"},
-            {herb: "Clean cadantine", potion: "Cadantine potion (unf)"},
-            {herb: "Clean lantadyme", potion: "Lantadyme potion (unf)"},
-            {herb: "Clean dwarf weed", potion: "Dwarf weed potion (unf)"},
-            {herb: "Clean torstol", potion: "Torstol potion (unf)"},
-            {herb: "Clean bloodweed", potion: "Bloodweed potion (unf)"},
-            {herb: "Clean arbuck", potion: "Arbuck potion (unf)"},
-            {herb: "Clean fellstalk", potion: "Fellstalk potion (unf)"},
+            {herb: "Clean guam", potion: "Guam potion (unf)", limit: 10000},
+            {herb: "Clean tarromin", potion: "Tarromin potion (unf)", limit: 10000},
+            {herb: "Clean marrentill", potion: "Marrentill potion (unf)", limit: 10000},
+            {herb: "Clean harralander", potion: "Harralander potion (unf)", limit: 10000},
+            {herb: "Clean ranarr", potion: "Ranarr potion (unf)", limit: 10000},
+            {herb: "Clean toadflax", potion: "Toadflax potion (unf)", limit: 10000},
+            {herb: "Clean irit", potion: "Irit potion (unf)", limit: 10000},
+            {herb: "Clean avantoe", potion: "Avantoe potion (unf)", limit: 10000},
+            {herb: "Clean kwuarm", potion: "Kwuarm potion (unf)", limit: 10000},
+            {herb: "Clean snapdragon", potion: "Snapdragon potion (unf)", limit: 10000},
+            {herb: "Clean cadantine", potion: "Cadantine potion (unf)", limit: 10000},
+            {herb: "Clean lantadyme", potion: "Lantadyme potion (unf)", limit: 10000},
+            {herb: "Clean dwarf weed", potion: "Dwarf weed potion (unf)", limit: 10000},
+            {herb: "Clean torstol", potion: "Torstol potion (unf)", limit: 10000},
+            {herb: "Clean bloodweed", potion: "Bloodweed potion (unf)", limit: 10000},
+            {herb: "Clean arbuck", potion: "Arbuck potion (unf)", limit: 10000},
+            {herb: "Clean fellstalk", potion: "Fellstalk potion (unf)", limit: 10000},
         ];
 
         const DISASSEMBLE_RECIPES = [
-            {item: "Maple logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50},
-            {item: "Acadia logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50},
-            {item: "Yew logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50},
-            {item: "Magic logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50},
-            {item: "Elder logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50},
-            {item: "Gold bar", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.90},
-            {item: "Harralander tar", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.80},
-            {item: "Silver jewelry", output: "Spring", parts_needed: 10, yield_rate: 0.30}, 
-            {item: "Maple shortbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
-            {item: "Yew shortbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
-            {item: "Magic shortbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
-            {item: "Maple shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
-            {item: "Yew shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
-            {item: "Magic shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
-            {item: "Maple shortbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
-            {item: "Yew shortbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
-            {item: "Magic shortbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
-            {item: "Maple shieldbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
-            {item: "Yew shieldbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
-            {item: "Magic shieldbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
-            {item: "Gold ring", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25},
-            {item: "Ruby amulet", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25},
-            {item: "Diamond necklace", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25},
-            {item: "Dragonstone bracelet", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25},
+            {item: "Maple logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 25000},
+            {item: "Acadia logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 10000},
+            {item: "Yew logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 25000},
+            {item: "Magic logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 25000},
+            {item: "Elder logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 25000},
+            {item: "Gold bar", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.90, limit: 10000},
+            {item: "Harralander tar", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.80, limit: 10000},
+            {item: "Silver jewelry", output: "Spring", parts_needed: 10, yield_rate: 0.30, limit: 1000}, 
+            {item: "Maple shortbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25, limit: 10000},
+            {item: "Yew shortbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25, limit: 10000},
+            {item: "Magic shortbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25, limit: 10000},
+            {item: "Maple shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25, limit: 10000},
+            {item: "Yew shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25, limit: 10000},
+            {item: "Magic shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25, limit: 10000},
+            {item: "Maple shortbow", output: "Spring", parts_needed: 10, yield_rate: 0.30, limit: 10000},
+            {item: "Yew shortbow", output: "Spring", parts_needed: 10, yield_rate: 0.30, limit: 10000},
+            {item: "Magic shortbow", output: "Spring", parts_needed: 10, yield_rate: 0.30, limit: 10000},
+            {item: "Maple shieldbow", output: "Spring", parts_needed: 10, yield_rate: 0.30, limit: 10000},
+            {item: "Yew shieldbow", output: "Spring", parts_needed: 10, yield_rate: 0.30, limit: 10000},
+            {item: "Magic shieldbow", output: "Spring", parts_needed: 10, yield_rate: 0.30, limit: 10000},
+            {item: "Gold ring", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25, limit: 10000},
+            {item: "Ruby amulet", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25, limit: 10000},
+            {item: "Diamond necklace", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25, limit: 10000},
+            {item: "Dragonstone bracelet", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25, limit: 10000},
         ];
 
-        function formatNumber(num) {
+        // State
+        let state = {
+            tab: 'Dashboard',
+            sortBy: 'day',
+            prices: null,
+            masterData: []
+        };
+        
+        let settings = {
+            tax: true,
+            junkTier: 0,
+            customCharge: null
+        };
+
+        // Initialize
+        function init() {
+            const saved = localStorage.getItem('inv_margins_settings');
+            if (saved) {
+                try {
+                    settings = { ...settings, ...JSON.parse(saved) };
+                } catch(e){}
+            }
+            document.getElementById('setting-tax').checked = settings.tax;
+            document.getElementById('setting-junk').value = settings.junkTier;
+            document.getElementById('setting-charge').value = settings.customCharge || '';
+            
+            fetchPrices();
+            setInterval(fetchPrices, 300000); // 5 mins
+        }
+
+        function toggleSettings() {
+            const el = document.getElementById('settings-modal');
+            el.classList.toggle('open');
+        }
+
+        function saveSettings() {
+            settings.tax = document.getElementById('setting-tax').checked;
+            settings.junkTier = parseInt(document.getElementById('setting-junk').value) || 0;
+            const chargeVal = document.getElementById('setting-charge').value;
+            settings.customCharge = chargeVal ? parseInt(chargeVal) : null;
+            
+            localStorage.setItem('inv_margins_settings', JSON.stringify(settings));
+            if (state.prices) calculateData();
+        }
+
+        function setTab(tabName) {
+            state.tab = tabName;
+            document.querySelectorAll('.tab').forEach(btn => {
+                if (btn.innerText === tabName || (tabName === 'Auto Disassembler' && btn.innerText === 'Disassembler')) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            document.getElementById('tab-desc').innerText = tabName === 'Dashboard' 
+                ? 'Top 25 Most Profitable Items' 
+                : MACHINES[tabName].desc;
+            renderData();
+        }
+
+        function setSort(val) {
+            state.sortBy = val;
+            renderData();
+        }
+
+        function formatNum(num) {
             return new Intl.NumberFormat('en-US').format(Math.floor(num));
         }
 
-        let cachedPrices = null;
+        function getWikiIconUrl(name) {
+            const parts = name.split(' -> ');
+            const n = parts.length > 1 ? parts[1] : name;
+            // Handle brackets e.g. (u)
+            let formatted = n.replace(/ /g, '_');
+            return `https://runescape.wiki/images/${formatted}.png`;
+        }
+
+        function toggleCard(el) {
+            el.classList.toggle('expanded');
+        }
 
         async function fetchPrices() {
+            const dot = document.getElementById('status-dot');
+            const text = document.getElementById('status-text');
+            dot.className = 'status-dot loading';
+            text.textContent = 'Fetching prices...';
+
             let names = ["Divine charge", "Empty divine charge", "Nature rune", "Vial of water", "Spring", "Equipment siphon"];
             DEFAULT_ALCH_ITEMS.forEach(i => names.push(i.name));
             PLANK_RECIPES.forEach(r => names.push(r.log, r.plank));
@@ -308,133 +653,204 @@
             DISASSEMBLE_RECIPES.forEach(r => names.push(r.item, r.output));
 
             let uniqueNames = [...new Set(names)];
-            let prices = {};
+            let newPrices = {};
 
             try {
                 for (let i = 0; i < uniqueNames.length; i += 40) {
                     const chunk = uniqueNames.slice(i, i + 40);
-                    const url = \`https://api.weirdgloop.org/exchange/history/rs/latest?name=\${encodeURIComponent(chunk.join('|'))}\`;
+                    const url = `https://api.weirdgloop.org/exchange/history/rs/latest?name=${encodeURIComponent(chunk.join('|'))}`;
                     const res = await fetch(url);
                     const data = await res.json();
                     for (const [k, v] of Object.entries(data)) {
-                        prices[k.toLowerCase()] = v.price;
+                        newPrices[k.toLowerCase()] = v.price;
                     }
                 }
-                cachedPrices = prices;
-                return prices;
+                state.prices = newPrices;
+                calculateData();
+                dot.className = 'status-dot';
+                text.textContent = 'Live';
             } catch (err) {
-                console.error("Failed to fetch prices", err);
-                return null;
+                console.error(err);
+                dot.className = 'status-dot error';
+                text.textContent = 'Error fetching prices';
             }
         }
 
-        async function calculateAndRender(forceFetch = false) {
-            document.getElementById('status-text').textContent = 'Fetching...';
-            document.querySelector('.status-dot').style.backgroundColor = 'orange';
+        function calculateData() {
+            const prices = state.prices;
+            if (!prices) return;
 
-            let prices = cachedPrices;
-            if (forceFetch || !prices) {
-                prices = await fetchPrices();
-            }
+            const tax = settings.tax ? 0.98 : 1.0;
+            const junkMult = 1.0 + (settings.junkTier * 0.015);
             
-            if (!prices) {
-                document.getElementById('status-text').textContent = 'Error fetching prices';
-                document.querySelector('.status-dot').style.backgroundColor = 'var(--bottleneck-color)';
-                return;
-            }
-
-            const applyTax = document.getElementById('apply-tax').checked;
-            const tax = applyTax ? 0.98 : 1.0;
-            const tier = parseInt(document.getElementById('junk-tier').value) || 0;
-            const junkMult = 1.0 + (tier * 0.015);
-
-            const divineCharge = prices["divine charge"] || 0;
+            const liveCharge = prices["divine charge"] || 0;
+            const divineCharge = settings.customCharge !== null ? settings.customCharge : liveCharge;
             const cCost = divineCharge / MACHINE_CHARGES_PER_DIVINE_CHARGE;
 
             let master = [];
 
+            // Alchemiser
             const natPrice = prices["nature rune"] || 0;
+            const alchDaily = MACHINES["Alchemiser"].iph * 24;
             DEFAULT_ALCH_ITEMS.forEach(i => {
                 const p = prices[i.name.toLowerCase()] || 0;
-                const prof = i.alch - (p + natPrice + (ALCH_CHARGES_PER_ITEM * cCost));
-                master.push({ machine: "Alchemiser", item: i.name, profit_item: prof, profit_day: prof * ALCHEMISER_ITEMS_PER_HOUR * 24 });
+                const cost = p + natPrice + (MACHINES["Alchemiser"].cpi * cCost);
+                const prof = i.alch - cost;
+                const bottleneck = (i.limit * 6) < alchDaily;
+                master.push({
+                    machine: "Alchemiser", item: i.name, 
+                    profitItem: prof, profitDay: prof * alchDaily,
+                    bottleneck, limit: i.limit,
+                    iconName: i.name,
+                    details: `Formula: ${formatNum(i.alch)} (Alch) - ${formatNum(p)} (GE Buy) - ${formatNum(natPrice)} (Nature) - ${formatNum(MACHINES["Alchemiser"].cpi * cCost)} (Charge Cost)`
+                });
             });
 
+            // Plank Maker
+            const plankDaily = MACHINES["Plank Maker"].iph * 24;
             PLANK_RECIPES.forEach(r => {
                 const logP = prices[r.log.toLowerCase()] || 0;
                 const plankP = prices[r.plank.toLowerCase()] || 0;
-                const prof = (plankP * tax) - (logP + r.coin_cost + (PLANK_CHARGES_PER_ITEM * cCost));
-                master.push({ machine: "Plank Maker", item: \`\${r.log} -> \${r.plank}\`, profit_item: prof, profit_day: prof * PLANK_MAKER_ITEMS_PER_HOUR * 24 });
+                const cost = logP + r.coin_cost + (MACHINES["Plank Maker"].cpi * cCost);
+                const prof = (plankP * tax) - cost;
+                const bottleneck = (r.limit * 6) < plankDaily;
+                master.push({
+                    machine: "Plank Maker", item: `${r.log} -> ${r.plank}`, 
+                    profitItem: prof, profitDay: prof * plankDaily,
+                    bottleneck, limit: r.limit,
+                    iconName: r.plank,
+                    details: `Formula: ${formatNum(plankP * tax)} (Sell After Tax) - ${formatNum(logP)} (Log) - ${r.coin_cost} (Coins) - ${formatNum(MACHINES["Plank Maker"].cpi * cCost)} (Charge)`
+                });
             });
 
+            // Hide Tanner
+            const tannerDaily = MACHINES["Hide Tanner"].iph * 24;
             TANNER_RECIPES.forEach(r => {
                 const hideP = prices[r.hide.toLowerCase()] || 0;
                 const leaP = prices[r.leather.toLowerCase()] || 0;
-                const prof = (leaP * tax) - (hideP + r.coin_cost + (TANNER_CHARGES_PER_ITEM * cCost));
-                master.push({ machine: "Hide Tanner", item: \`\${r.hide} -> \${r.leather}\`, profit_item: prof, profit_day: prof * TANNER_ITEMS_PER_HOUR * 24 });
+                const cost = hideP + r.coin_cost + (MACHINES["Hide Tanner"].cpi * cCost);
+                const prof = (leaP * tax) - cost;
+                const bottleneck = (r.limit * 6) < tannerDaily;
+                master.push({
+                    machine: "Hide Tanner", item: `${r.hide} -> ${r.leather}`, 
+                    profitItem: prof, profitDay: prof * tannerDaily,
+                    bottleneck, limit: r.limit,
+                    iconName: r.leather,
+                    details: `Formula: ${formatNum(leaP * tax)} (Sell After Tax) - ${formatNum(hideP)} (Hide) - ${r.coin_cost} (Coins) - ${formatNum(MACHINES["Hide Tanner"].cpi * cCost)} (Charge)`
+                });
             });
 
+            // Potion Producer
+            const potDaily = MACHINES["Potion Producer"].iph * 24;
             const vialP = prices["vial of water"] || 0;
             POTION_RECIPES.forEach(r => {
                 const herbP = prices[r.herb.toLowerCase()] || 0;
                 const potP = prices[r.potion.toLowerCase()] || 0;
-                const prof = (potP * tax) - (herbP + vialP + (POTION_CHARGES_PER_ITEM * cCost));
-                master.push({ machine: "Potion Producer", item: \`\${r.herb} -> \${r.potion}\`, profit_item: prof, profit_day: prof * POTION_ITEMS_PER_HOUR * 24 });
+                const cost = herbP + vialP + (MACHINES["Potion Producer"].cpi * cCost);
+                const prof = (potP * tax) - cost;
+                const bottleneck = (r.limit * 6) < potDaily;
+                master.push({
+                    machine: "Potion Producer", item: `${r.herb} -> ${r.potion}`, 
+                    profitItem: prof, profitDay: prof * potDaily,
+                    bottleneck, limit: r.limit,
+                    iconName: r.potion,
+                    details: `Formula: ${formatNum(potP * tax)} (Sell After Tax) - ${formatNum(herbP)} (Herb) - ${formatNum(vialP)} (Vial) - ${formatNum(MACHINES["Potion Producer"].cpi * cCost)} (Charge)`
+                });
             });
 
+            // Disassembler
+            const disDaily = MACHINES["Auto Disassembler"].iph * 24;
             DISASSEMBLE_RECIPES.forEach(r => {
                 const itemP = prices[r.item.toLowerCase()] || 0;
                 const prodP = prices[r.output.toLowerCase()] || 0;
                 const itemsNeeded = r.parts_needed / (r.yield_rate * junkMult);
-                const mCost = DISASSEMBLER_CHARGES_PER_ITEM * cCost;
+                const mCost = MACHINES["Auto Disassembler"].cpi * cCost;
+                
                 const profPerProd = (prodP * tax) - (itemsNeeded * (itemP + mCost));
-                const prodHr = DISASSEMBLER_ITEMS_PER_HOUR / itemsNeeded;
+                const prodHr = MACHINES["Auto Disassembler"].iph / itemsNeeded;
                 const profHr = prodHr * profPerProd;
-                master.push({ machine: "Auto Disassembler", item: \`\${r.item} -> \${r.output}\`, profit_item: profPerProd, profit_day: profHr * 24 });
+                const bottleneck = (r.limit * 6) < (disDaily * itemsNeeded);
+                
+                master.push({
+                    machine: "Auto Disassembler", item: `${r.item} -> ${r.output}`, 
+                    profitItem: profPerProd, profitDay: profHr * 24,
+                    bottleneck, limit: r.limit,
+                    iconName: r.output,
+                    details: `Needs ${itemsNeeded.toFixed(2)} items per product (w/ Junk Red: ${settings.junkTier}).<br>Formula: ${formatNum(prodP * tax)} (Sell) - [${itemsNeeded.toFixed(2)} * (${formatNum(itemP)} (Item) + ${formatNum(mCost)} (Charge))]`
+                });
             });
 
-            renderData(master);
-
-            document.getElementById('status-text').textContent = 'Live';
-            document.querySelector('.status-dot').style.backgroundColor = 'var(--profit-color)';
+            state.masterData = master;
+            renderData();
         }
 
-        function renderData(data) {
+        function renderData() {
             const container = document.getElementById('data-container');
             container.innerHTML = '';
 
-            const sortedData = data.sort((a, b) => b.profit_day - a.profit_day).slice(0, 25);
+            let data = state.masterData;
+            if (state.tab !== 'Dashboard') {
+                data = data.filter(d => d.machine === state.tab);
+            }
 
-            if (sortedData.length === 0) {
-                container.innerHTML = '<div class="loader">No data available. Try refreshing.</div>';
+            // Sort
+            if (state.sortBy === 'day') {
+                data.sort((a, b) => b.profitDay - a.profitDay);
+            } else {
+                data.sort((a, b) => b.profitItem - a.profitItem);
+            }
+
+            // Limit dashboard to 25
+            if (state.tab === 'Dashboard') {
+                data = data.slice(0, 25);
+            }
+
+            if (data.length === 0) {
+                container.innerHTML = `<div class="loader-wrapper"><div>No data available.</div></div>`;
                 return;
             }
 
-            sortedData.forEach((row, index) => {
+            data.forEach((row, idx) => {
                 const card = document.createElement('div');
-                card.className = 'item-card';
-                card.innerHTML = \`
-                    <div class="item-info">
-                        <div class="item-name">#\${index + 1} \${row.item}</div>
-                        <div class="machine-name">\${row.machine}</div>
-                    </div>
-                    <div class="profit-info">
-                        <div class="profit-day" style="color: \${row.profit_day > 0 ? 'var(--profit-color)' : 'var(--bottleneck-color)'}">
-                            \${row.profit_day > 0 ? '+' : ''}\${formatNumber(row.profit_day)} / day
+                card.className = 'card';
+                card.setAttribute('onclick', 'toggleCard(this)');
+                
+                const isPos = row.profitDay >= 0;
+                const bTag = row.bottleneck 
+                    ? `<span class="tag bottleneck" title="Buy limit is ${row.limit}/4hr. Machine requires more than ${row.limit*6}/day.">⚠️ Buy Limit: ${row.limit}</span>`
+                    : `<span class="tag">Limit: ${row.limit}</span>`;
+                
+                const mTag = state.tab === 'Dashboard' ? `<span class="tag">${row.machine}</span>` : '';
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <div class="card-left">
+                            <img class="item-icon" src="${getWikiIconUrl(row.iconName)}" onerror="this.style.opacity='0'">
+                            <div class="item-info">
+                                <div class="item-name">${state.tab === 'Dashboard' ? '#' + (idx+1) + ' ' : ''}${row.item}</div>
+                                <div class="tags">
+                                    ${mTag}
+                                    ${bTag}
+                                </div>
+                            </div>
                         </div>
-                        <div class="profit-item">\${formatNumber(row.profit_item)} ea</div>
+                        <div class="card-right">
+                            <div class="profit-day ${isPos ? 'positive' : 'negative'}">
+                                ${isPos ? '+' : ''}${formatNum(row.profitDay)} / day
+                            </div>
+                            <div class="profit-ea">${formatNum(row.profitItem)} ea</div>
+                        </div>
                     </div>
-                \`;
+                    <div class="card-details">
+                        ${row.details}
+                    </div>
+                `;
                 container.appendChild(card);
             });
         }
 
-        document.getElementById('apply-tax').addEventListener('change', () => calculateAndRender(false));
-        document.getElementById('junk-tier').addEventListener('change', () => calculateAndRender(false));
-        document.getElementById('junk-tier').addEventListener('input', () => calculateAndRender(false));
-
-        calculateAndRender(true);
-        setInterval(() => calculateAndRender(true), 300000); 
+        // Boot
+        window.onload = init;
     </script>
 </body>
 </html>
