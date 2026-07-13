@@ -1,7 +1,8 @@
 {
   "name": "Invention Machine Margins",
   "description": "Live profit margins for RS3 Invention Machines",
-  "version": "3.0.0",
+  "version": "3.0.1",
+  "configUrl": "index.html",
   "appUrl": "index.html",
   "iconUrl": "icon.png",
   "permissions": [
