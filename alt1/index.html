@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-width=1.0">
+    <title>Invention Machine Margins</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f1115;
+            --surface-color: rgba(255, 255, 255, 0.05);
+            --surface-hover: rgba(255, 255, 255, 0.08);
+            --text-primary: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --profit-color: #10b981;
+            --bottleneck-color: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: transparent; 
+            color: var(--text-primary);
+            overflow: hidden; 
+        }
+        
+        .app-container {
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(145deg, rgba(15, 17, 21, 0.95), rgba(20, 24, 30, 0.95));
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid var(--border-color);
+        }
+
+        header {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        h1 {
+            font-size: 16px;
+            font-weight: 600;
+            background: linear-gradient(90deg, #60a5fa, #a78bfa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .status {
+            font-size: 12px;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: var(--profit-color);
+            border-radius: 50%;
+            box-shadow: 0 0 8px var(--profit-color);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .table-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .table-container::-webkit-scrollbar {
+            width: 6px;
+        }
+        .table-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .table-container::-webkit-scrollbar-thumb {
+            background: var(--surface-hover);
+            border-radius: 4px;
+        }
+
+        .item-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .item-card:hover {
+            background: var(--surface-hover);
+            transform: translateY(-1px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .item-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .item-name {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .machine-name {
+            font-size: 11px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .profit-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 4px;
+        }
+
+        .profit-day {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--profit-color);
+        }
+
+        .profit-item {
+            font-size: 11px;
+            color: var(--text-secondary);
+        }
+
+        .loader {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+            color: var(--text-secondary);
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div>
+                <h1>Invention Margins</h1>
+                <div class="status">
+                    <div class="status-dot"></div>
+                    <span id="status-text">Fetching...</span>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <label style="font-size: 11px; color: var(--text-secondary);">Tax
+                    <input type="checkbox" id="apply-tax" checked style="margin-left:4px; cursor: pointer;">
+                </label>
+                <label style="font-size: 11px; color: var(--text-secondary);">Junk Tier
+                    <input type="number" id="junk-tier" value="0" min="0" max="9" style="width:35px; margin-left:4px; background: rgba(0,0,0,0.3); border:1px solid var(--border-color); color:white; border-radius:3px; padding: 2px;">
+                </label>
+            </div>
+        </header>
+        <div class="table-container" id="data-container">
+            <div class="loader">Waiting for data...</div>
+        </div>
+    </div>
+
+    <script>
+        const MACHINE_CHARGES_PER_DIVINE_CHARGE = 3000;
+        const ALCHEMISER_ITEMS_PER_HOUR = 25;
+        const ALCH_CHARGES_PER_ITEM = 150 / 25;
+
+        const PLANK_MAKER_ITEMS_PER_HOUR = 40;
+        const PLANK_CHARGES_PER_ITEM = 600 / 40;
+
+        const DISASSEMBLER_ITEMS_PER_HOUR = 35;
+        const DISASSEMBLER_CHARGES_PER_ITEM = 180 / 35;
+
+        const TANNER_ITEMS_PER_HOUR = 140;
+        const TANNER_CHARGES_PER_ITEM = 225 / 140;
+
+        const POTION_ITEMS_PER_HOUR = 40;
+        const POTION_CHARGES_PER_ITEM = 210 / 40;
+
+        const DEFAULT_ALCH_ITEMS = [
+            {name: "Huge bladed rune salvage", alch: 40000},
+            {name: "Huge plated rune salvage", alch: 40000},
+            {name: "Huge blunt rune salvage", alch: 40000},
+            {name: "Huge bladed orikalkum salvage", alch: 60000},
+            {name: "Huge plated orikalkum salvage", alch: 60000},
+            {name: "Huge blunt orikalkum salvage", alch: 60000},
+            {name: "Huge bladed necronium salvage", alch: 80000},
+            {name: "Huge plated necronium salvage", alch: 80000},
+            {name: "Huge blunt necronium salvage", alch: 80000},
+            {name: "Large bladed rune salvage", alch: 16000},
+            {name: "Large plated rune salvage", alch: 16000},
+            {name: "Large blunt rune salvage", alch: 16000},
+            {name: "Dragon halberd", alch: 150000},
+            {name: "Dragon 2h sword", alch: 78000},
+            {name: "Dragon battleaxe", alch: 120000},
+            {name: "Onyx bolts (e)", alch: 5400},
+            {name: "Hydrix bolts (e)", alch: 6000},
+            {name: "Ascendri bolts (e)", alch: 6000},
+            {name: "Rune 2h sword", alch: 38400},
+            {name: "Rune platebody", alch: 39000},
+            {name: "Fire battlestaff", alch: 9300},
+            {name: "Water battlestaff", alch: 9300},
+            {name: "Mystic air staff", alch: 25500},
+            {name: "Mystic water staff", alch: 25500},
+            {name: "Grifolic wand", alch: 5000},
+        ];
+
+        const PLANK_RECIPES = [
+            {log: "Logs", plank: "Plank", coin_cost: 100},
+            {log: "Oak logs", plank: "Oak plank", coin_cost: 250},
+            {log: "Teak logs", plank: "Teak plank", coin_cost: 500},
+            {log: "Mahogany logs", plank: "Mahogany plank", coin_cost: 1500},
+        ];
+
+        const TANNER_RECIPES = [
+            {hide: "Green dragonhide", leather: "Green dragon leather", coin_cost: 20},
+            {hide: "Blue dragonhide", leather: "Blue dragon leather", coin_cost: 20},
+            {hide: "Red dragonhide", leather: "Red dragon leather", coin_cost: 20},
+            {hide: "Black dragonhide", leather: "Black dragon leather", coin_cost: 20},
+            {hide: "Royal dragonhide", leather: "Royal dragon leather", coin_cost: 20},
+            {hide: "Dinosaurhide", leather: "Dinosaur leather", coin_cost: 20},
+        ];
+
+        const POTION_RECIPES = [
+            {herb: "Clean guam", potion: "Guam potion (unf)"},
+            {herb: "Clean tarromin", potion: "Tarromin potion (unf)"},
+            {herb: "Clean marrentill", potion: "Marrentill potion (unf)"},
+            {herb: "Clean harralander", potion: "Harralander potion (unf)"},
+            {herb: "Clean ranarr", potion: "Ranarr potion (unf)"},
+            {herb: "Clean toadflax", potion: "Toadflax potion (unf)"},
+            {herb: "Clean irit", potion: "Irit potion (unf)"},
+            {herb: "Clean avantoe", potion: "Avantoe potion (unf)"},
+            {herb: "Clean kwuarm", potion: "Kwuarm potion (unf)"},
+            {herb: "Clean snapdragon", potion: "Snapdragon potion (unf)"},
+            {herb: "Clean cadantine", potion: "Cadantine potion (unf)"},
+            {herb: "Clean lantadyme", potion: "Lantadyme potion (unf)"},
+            {herb: "Clean dwarf weed", potion: "Dwarf weed potion (unf)"},
+            {herb: "Clean torstol", potion: "Torstol potion (unf)"},
+            {herb: "Clean bloodweed", potion: "Bloodweed potion (unf)"},
+            {herb: "Clean arbuck", potion: "Arbuck potion (unf)"},
+            {herb: "Clean fellstalk", potion: "Fellstalk potion (unf)"},
+        ];
+
+        const DISASSEMBLE_RECIPES = [
+            {item: "Maple logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50},
+            {item: "Acadia logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50},
+            {item: "Yew logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50},
+            {item: "Magic logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50},
+            {item: "Elder logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50},
+            {item: "Gold bar", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.90},
+            {item: "Harralander tar", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.80},
+            {item: "Silver jewelry", output: "Spring", parts_needed: 10, yield_rate: 0.30}, 
+            {item: "Maple shortbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
+            {item: "Yew shortbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
+            {item: "Magic shortbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
+            {item: "Maple shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
+            {item: "Yew shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
+            {item: "Magic shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25},
+            {item: "Maple shortbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
+            {item: "Yew shortbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
+            {item: "Magic shortbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
+            {item: "Maple shieldbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
+            {item: "Yew shieldbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
+            {item: "Magic shieldbow", output: "Spring", parts_needed: 10, yield_rate: 0.30},
+            {item: "Gold ring", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25},
+            {item: "Ruby amulet", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25},
+            {item: "Diamond necklace", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25},
+            {item: "Dragonstone bracelet", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25},
+        ];
+
+        function formatNumber(num) {
+            return new Intl.NumberFormat('en-US').format(Math.floor(num));
+        }
+
+        let cachedPrices = null;
+
+        async function fetchPrices() {
+            let names = ["Divine charge", "Empty divine charge", "Nature rune", "Vial of water", "Spring", "Equipment siphon"];
+            DEFAULT_ALCH_ITEMS.forEach(i => names.push(i.name));
+            PLANK_RECIPES.forEach(r => names.push(r.log, r.plank));
+            TANNER_RECIPES.forEach(r => names.push(r.hide, r.leather));
+            POTION_RECIPES.forEach(r => names.push(r.herb, r.potion));
+            DISASSEMBLE_RECIPES.forEach(r => names.push(r.item, r.output));
+
+            let uniqueNames = [...new Set(names)];
+            let prices = {};
+
+            try {
+                for (let i = 0; i < uniqueNames.length; i += 40) {
+                    const chunk = uniqueNames.slice(i, i + 40);
+                    const url = \`https://api.weirdgloop.org/exchange/history/rs/latest?name=\${encodeURIComponent(chunk.join('|'))}\`;
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    for (const [k, v] of Object.entries(data)) {
+                        prices[k.toLowerCase()] = v.price;
+                    }
+                }
+                cachedPrices = prices;
+                return prices;
+            } catch (err) {
+                console.error("Failed to fetch prices", err);
+                return null;
+            }
+        }
+
+        async function calculateAndRender(forceFetch = false) {
+            document.getElementById('status-text').textContent = 'Fetching...';
+            document.querySelector('.status-dot').style.backgroundColor = 'orange';
+
+            let prices = cachedPrices;
+            if (forceFetch || !prices) {
+                prices = await fetchPrices();
+            }
+            
+            if (!prices) {
+                document.getElementById('status-text').textContent = 'Error fetching prices';
+                document.querySelector('.status-dot').style.backgroundColor = 'var(--bottleneck-color)';
+                return;
+            }
+
+            const applyTax = document.getElementById('apply-tax').checked;
+            const tax = applyTax ? 0.98 : 1.0;
+            const tier = parseInt(document.getElementById('junk-tier').value) || 0;
+            const junkMult = 1.0 + (tier * 0.015);
+
+            const divineCharge = prices["divine charge"] || 0;
+            const cCost = divineCharge / MACHINE_CHARGES_PER_DIVINE_CHARGE;
+
+            let master = [];
+
+            const natPrice = prices["nature rune"] || 0;
+            DEFAULT_ALCH_ITEMS.forEach(i => {
+                const p = prices[i.name.toLowerCase()] || 0;
+                const prof = i.alch - (p + natPrice + (ALCH_CHARGES_PER_ITEM * cCost));
+                master.push({ machine: "Alchemiser", item: i.name, profit_item: prof, profit_day: prof * ALCHEMISER_ITEMS_PER_HOUR * 24 });
+            });
+
+            PLANK_RECIPES.forEach(r => {
+                const logP = prices[r.log.toLowerCase()] || 0;
+                const plankP = prices[r.plank.toLowerCase()] || 0;
+                const prof = (plankP * tax) - (logP + r.coin_cost + (PLANK_CHARGES_PER_ITEM * cCost));
+                master.push({ machine: "Plank Maker", item: \`\${r.log} -> \${r.plank}\`, profit_item: prof, profit_day: prof * PLANK_MAKER_ITEMS_PER_HOUR * 24 });
+            });
+
+            TANNER_RECIPES.forEach(r => {
+                const hideP = prices[r.hide.toLowerCase()] || 0;
+                const leaP = prices[r.leather.toLowerCase()] || 0;
+                const prof = (leaP * tax) - (hideP + r.coin_cost + (TANNER_CHARGES_PER_ITEM * cCost));
+                master.push({ machine: "Hide Tanner", item: \`\${r.hide} -> \${r.leather}\`, profit_item: prof, profit_day: prof * TANNER_ITEMS_PER_HOUR * 24 });
+            });
+
+            const vialP = prices["vial of water"] || 0;
+            POTION_RECIPES.forEach(r => {
+                const herbP = prices[r.herb.toLowerCase()] || 0;
+                const potP = prices[r.potion.toLowerCase()] || 0;
+                const prof = (potP * tax) - (herbP + vialP + (POTION_CHARGES_PER_ITEM * cCost));
+                master.push({ machine: "Potion Producer", item: \`\${r.herb} -> \${r.potion}\`, profit_item: prof, profit_day: prof * POTION_ITEMS_PER_HOUR * 24 });
+            });
+
+            DISASSEMBLE_RECIPES.forEach(r => {
+                const itemP = prices[r.item.toLowerCase()] || 0;
+                const prodP = prices[r.output.toLowerCase()] || 0;
+                const itemsNeeded = r.parts_needed / (r.yield_rate * junkMult);
+                const mCost = DISASSEMBLER_CHARGES_PER_ITEM * cCost;
+                const profPerProd = (prodP * tax) - (itemsNeeded * (itemP + mCost));
+                const prodHr = DISASSEMBLER_ITEMS_PER_HOUR / itemsNeeded;
+                const profHr = prodHr * profPerProd;
+                master.push({ machine: "Auto Disassembler", item: \`\${r.item} -> \${r.output}\`, profit_item: profPerProd, profit_day: profHr * 24 });
+            });
+
+            renderData(master);
+
+            document.getElementById('status-text').textContent = 'Live';
+            document.querySelector('.status-dot').style.backgroundColor = 'var(--profit-color)';
+        }
+
+        function renderData(data) {
+            const container = document.getElementById('data-container');
+            container.innerHTML = '';
+
+            const sortedData = data.sort((a, b) => b.profit_day - a.profit_day).slice(0, 25);
+
+            if (sortedData.length === 0) {
+                container.innerHTML = '<div class="loader">No data available. Try refreshing.</div>';
+                return;
+            }
+
+            sortedData.forEach((row, index) => {
+                const card = document.createElement('div');
+                card.className = 'item-card';
+                card.innerHTML = \`
+                    <div class="item-info">
+                        <div class="item-name">#\${index + 1} \${row.item}</div>
+                        <div class="machine-name">\${row.machine}</div>
+                    </div>
+                    <div class="profit-info">
+                        <div class="profit-day" style="color: \${row.profit_day > 0 ? 'var(--profit-color)' : 'var(--bottleneck-color)'}">
+                            \${row.profit_day > 0 ? '+' : ''}\${formatNumber(row.profit_day)} / day
+                        </div>
+                        <div class="profit-item">\${formatNumber(row.profit_item)} ea</div>
+                    </div>
+                \`;
+                container.appendChild(card);
+            });
+        }
+
+        document.getElementById('apply-tax').addEventListener('change', () => calculateAndRender(false));
+        document.getElementById('junk-tier').addEventListener('change', () => calculateAndRender(false));
+        document.getElementById('junk-tier').addEventListener('input', () => calculateAndRender(false));
+
+        calculateAndRender(true);
+        setInterval(() => calculateAndRender(true), 300000); 
+    </script>
+</body>
+</html>

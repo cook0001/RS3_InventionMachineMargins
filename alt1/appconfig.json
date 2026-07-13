@@ -1,0 +1,8 @@
+{
+  "name": "Invention Machine Margins",
+  "description": "Live profit margins for RS3 Invention Machines",
+  "version": "1.0.0",
+  "configUrl": "index.html",
+  "appUrl": "index.html",
+  "iconUrl": "icon.png"
+}
