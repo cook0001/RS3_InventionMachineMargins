@@ -27,7 +27,9 @@ A comprehensive, automated profit calculator for RuneScape 3 Invention Machines.
 ## 🌐 Alt1 Toolkit Web App
 The web app is located in the `alt1/` directory. 
 - **Progressive Web App (PWA):** Works beautifully on mobile! You can install the web app to your phone's home screen for offline caching and a native app feel.
-- **How to Use in Alt1:** Simply point your Alt1 browser to the hosted URL or load the `alt1/index.html` file locally.
+- **How to Use in Alt1:** 
+  - **Direct Install:** <a href="alt1://addapp/https://cook0001.github.io/RS3_InventionMachineMargins/appconfig.json">Click here to install directly into Alt1</a>
+  - **Manual Install:** Paste `https://cook0001.github.io/RS3_InventionMachineMargins/appconfig.json` into the Alt1 browser address bar and click the green "Add App" button.
 
 ## 💻 Python Desktop App
 
