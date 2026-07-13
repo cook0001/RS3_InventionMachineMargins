@@ -1,24 +1,42 @@
 # Invention Machine Margins ⚙️📈
 
-A comprehensive, automated profit calculator for RuneScape 3 Invention Machines.
+A comprehensive, automated profit calculator for RuneScape 3 Invention Machines. Available as both a standalone desktop application and a sleek, fully-featured Alt1 Toolkit web app.
 
 ## Features
+
 - **Live GE Prices:** Automatically fetches the latest Grand Exchange prices using the Weirdgloop API.
-- **5 Machine Types Supported:**
-  - Alchemiser Mk. II
-  - Auto Disassembler Mk. II
+- **5 Machine Types Supported (Mk. I & Mk. II):**
+  - Alchemiser
+  - Auto Disassembler
   - Plank Maker
   - Hide Tanner
-  - Potion Producer DX
-- **Global Dashboard:** A master leaderboard showing the absolute best machine+item combinations across all categories.
-- **Custom Items:** Add and save custom item recipes directly from the UI for the Alchemiser and Disassembler.
-- **Junk Reduction Scaling:** Built-in yield multipliers for precise Auto Disassembler calculations based on your account's Junk Reduction Tier.
+  - Potion Producer
+- **Advanced Capital & Uptime Analytics:** 
+  - Calculates exactly how much daily capital is required to fund each margin.
+  - Displays maximum machine uptime (in days) before you need to refill them.
+- **Component Valuations:** Calculates the implied value of rare components (e.g., Noxious, Ilujankan) based on current weapon prices.
+- **Buy Limit Warnings:** Automatically flags items if their GE buy limit bottlenecks your machine's daily processing capacity.
+- **Customization Options:**
+  - Toggle 2% GE Tax
+  - Set your Junk Reduction Tier for accurate Disassembler yields
+  - Define custom Divine Charge prices (useful if you gather your own energy)
+  - Add and save custom item recipes directly from the UI
 
-## Requirements
+## 🌐 Alt1 Toolkit Web App (New!)
+The web app is located in the `alt1/` directory. It features a premium, glassmorphism UI with RuneScape Wiki icon integration, dynamic sorting, and persistent `localStorage` settings. 
+
+### Web App Features:
+- **Alt1 Integration:** Ready for native Alt1 screen reading hooks.
+- **Progressive Web App (PWA):** Works beautifully on mobile! You can install the web app to your phone's home screen for offline caching and native app feel.
+- **How to Use in Alt1:** Simply point your Alt1 browser to the hosted URL or load the `alt1/index.html` file locally.
+
+## 💻 Python Desktop App
+
+### Requirements
 - Python 3.10+
 - `sv_ttk` (for the dark theme UI)
 
-## Installation & Running from Source
+### Installation & Running from Source
 1. Clone the repository.
 2. Install the required Python dependencies:
    ```bash
