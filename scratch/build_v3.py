@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+import json
+import os
+
+html_content = r"""<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -631,4 +634,7 @@
         window.onload = init;
     </script>
 </body>
-</html>
+</html>"""
+
+with open(r"C:\Users\danie\Documents\invention_machines\alt1\index.html", "w", encoding="utf-8") as f:
+    f.write(html_content)
