@@ -31,7 +31,7 @@ The web app is located in the `alt1/` directory.
   - **Direct Install (Recommended):** [Click here to install directly into Alt1](https://invent.armstrader.store/install.html)
   - **Manual Install:** Open Alt1 Toolkit, click the copy button on the URL below, paste it into the Alt1 address bar, and click the green "Add App" button.
   ```text
-  https://invent.armstrader.store/appconfig_v3.json
+  https://invent.armstrader.store/appconfig.json
   ```
 
 ## 💻 Python Desktop App

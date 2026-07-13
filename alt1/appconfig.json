@@ -1,0 +1,11 @@
+{
+  "name": "Invention Machine Margins",
+  "description": "Live profit margins for RS3 Invention Machines",
+  "version": "3.0.1",
+  "configUrl": "https://invent.armstrader.store/appconfig.json",
+  "appUrl": "https://invent.armstrader.store/index.html",
+  "iconUrl": "https://invent.armstrader.store/icon.png",
+  "permissions": [
+    "pixel"
+  ]
+}

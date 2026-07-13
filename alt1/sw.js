@@ -1,5 +1,5 @@
 
-const CACHE_NAME = 'inv-margins-v1';
+const CACHE_NAME = 'inv-margins-v2';
 const urlsToCache = [
   './index.html',
   './icon.png',
@@ -21,5 +21,19 @@ self.addEventListener('fetch', event => {
         if (response) return response;
         return fetch(event.request);
       })
+  );
+});
+
+self.addEventListener('activate', event => {
+  event.waitUntil(
+    caches.keys().then(cacheNames => {
+      return Promise.all(
+        cacheNames.map(cacheName => {
+          if (cacheName !== CACHE_NAME) {
+            return caches.delete(cacheName);
+          }
+        })
+      );
+    })
   );
 });
