@@ -284,7 +284,7 @@
         function setTab(tabName) {
             state.tab = tabName;
             document.querySelectorAll('.tab').forEach(btn => {
-                btn.classList.toggle('active', btn.innerText === tabName || (tabName === 'Auto Disassembler' && btn.innerText === 'Disassembler'));
+                btn.classList.toggle('active', btn.innerText === tabName || (tabName === 'Auto Disassembler' && btn.innerText === 'Disassembler') || (tabName === 'Potion Producer' && btn.innerText === 'Potion'));
             });
             document.getElementById('tab-desc').innerText = tabName === 'Dashboard' ? 'Top 25 Most Profitable Items' : 
                                                             (tabName === 'Components' ? 'Implied Component Valuations' :
@@ -390,6 +390,22 @@
                     bottleneck: (r.limit * 6) < tannerDaily, limit: r.limit, iconName: r.leather,
                     capital: (hideP + r.coin_cost) * tannerDaily,
                     details: `Daily Capital Req: ${formatNum((hideP + r.coin_cost) * tannerDaily)}<br>Uptime: ${(MACHINES["Hide Tanner"][t].cap / tannerDaily).toFixed(1)} Days`
+                });
+            });
+
+            // Potion Producer
+            const potDaily = MACHINES["Potion Producer"][t].iph * 24;
+            const vialP = prices["vial of water"] || 0;
+            POTION_RECIPES.forEach(r => {
+                const herbP = prices[r.herb.toLowerCase()] || 0;
+                const potP = prices[r.potion.toLowerCase()] || 0;
+                const cost = herbP + vialP + (MACHINES["Potion Producer"][t].cpi * cCost);
+                const prof = (potP * tax) - cost;
+                master.push({
+                    machine: "Potion Producer", item: `${r.herb} -> ${r.potion}`, profitItem: prof, profitDay: prof * potDaily,
+                    bottleneck: (r.limit * 6) < potDaily, limit: r.limit, iconName: r.potion,
+                    capital: (herbP + vialP) * potDaily,
+                    details: `Daily Capital Req: ${formatNum((herbP + vialP) * potDaily)}<br>Uptime: ${(MACHINES["Potion Producer"][t].cap / potDaily).toFixed(1)} Days`
                 });
             });
 
