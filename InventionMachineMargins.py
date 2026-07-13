@@ -3,8 +3,12 @@ import os
 import sys
 
 def main():
-    # Get absolute path to alt1/index.html
-    base_dir = os.path.dirname(os.path.abspath(__file__))
+    # Handle PyInstaller one-file bundled path
+    if hasattr(sys, '_MEIPASS'):
+        base_dir = getattr(sys, '_MEIPASS')
+    else:
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        
     html_path = os.path.join(base_dir, 'alt1', 'index.html')
     
     if not os.path.exists(html_path):
