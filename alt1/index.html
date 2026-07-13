@@ -247,8 +247,38 @@
 
         const PLANK_RECIPES = [{log: "Logs", plank: "Plank", coin_cost: 100, limit: 10000}, {log: "Oak logs", plank: "Oak plank", coin_cost: 250, limit: 10000}, {log: "Teak logs", plank: "Teak plank", coin_cost: 500, limit: 10000}, {log: "Mahogany logs", plank: "Mahogany plank", coin_cost: 1500, limit: 10000}];
         const TANNER_RECIPES = [{hide: "Green dragonhide", leather: "Green dragon leather", coin_cost: 20, limit: 10000}, {hide: "Blue dragonhide", leather: "Blue dragon leather", coin_cost: 20, limit: 10000}, {hide: "Red dragonhide", leather: "Red dragon leather", coin_cost: 20, limit: 10000}, {hide: "Black dragonhide", leather: "Black dragon leather", coin_cost: 20, limit: 10000}, {hide: "Royal dragonhide", leather: "Royal dragon leather", coin_cost: 20, limit: 10000}];
-        const POTION_RECIPES = [{herb: "Clean guam", potion: "Guam potion (unf)", limit: 10000}, {herb: "Clean ranarr", potion: "Ranarr potion (unf)", limit: 10000}, {herb: "Clean snapdragon", potion: "Snapdragon potion (unf)", limit: 10000}, {herb: "Clean torstol", potion: "Torstol potion (unf)", limit: 10000}];
-        const DISASSEMBLE_RECIPES = [{item: "Maple logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 25000}, {item: "Magic logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 25000}, {item: "Silver jewelry", output: "Spring", parts_needed: 10, yield_rate: 0.30, limit: 1000}, {item: "Maple shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25, limit: 10000}, {item: "Diamond necklace", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25, limit: 10000}];
+        const POTION_RECIPES = [
+            {herb: "Clean guam", potion: "Guam potion (unf)", limit: 10000},
+            {herb: "Clean tarromin", potion: "Tarromin potion (unf)", limit: 10000},
+            {herb: "Clean marrentill", potion: "Marrentill potion (unf)", limit: 10000},
+            {herb: "Clean harralander", potion: "Harralander potion (unf)", limit: 10000},
+            {herb: "Clean ranarr", potion: "Ranarr potion (unf)", limit: 10000},
+            {herb: "Clean toadflax", potion: "Toadflax potion (unf)", limit: 10000},
+            {herb: "Clean irit", potion: "Irit potion (unf)", limit: 10000},
+            {herb: "Clean avantoe", potion: "Avantoe potion (unf)", limit: 10000},
+            {herb: "Clean kwuarm", potion: "Kwuarm potion (unf)", limit: 10000},
+            {herb: "Clean snapdragon", potion: "Snapdragon potion (unf)", limit: 10000},
+            {herb: "Clean cadantine", potion: "Cadantine potion (unf)", limit: 10000},
+            {herb: "Clean lantadyme", potion: "Lantadyme potion (unf)", limit: 10000},
+            {herb: "Clean dwarf weed", potion: "Dwarf weed potion (unf)", limit: 10000},
+            {herb: "Clean torstol", potion: "Torstol potion (unf)", limit: 10000},
+            {herb: "Clean fellstalk", potion: "Fellstalk potion (unf)", limit: 10000}
+        ];
+        const DISASSEMBLE_RECIPES = [
+            {item: "Maple logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 25000},
+            {item: "Yew logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 25000},
+            {item: "Magic logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 25000},
+            {item: "Elder logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 25000},
+            {item: "Acadia logs", output: "Empty divine charge", parts_needed: 20, yield_rate: 0.50, limit: 25000},
+            {item: "Silver jewelry", output: "Spring", parts_needed: 10, yield_rate: 0.30, limit: 1000}, 
+            {item: "Gold jewelry", output: "Spring", parts_needed: 10, yield_rate: 0.30, limit: 1000},
+            {item: "Maple shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25, limit: 10000},
+            {item: "Yew shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25, limit: 10000},
+            {item: "Magic shieldbow (u)", output: "Spring", parts_needed: 10, yield_rate: 0.25, limit: 10000},
+            {item: "Ruby necklace", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25, limit: 10000},
+            {item: "Diamond necklace", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25, limit: 10000},
+            {item: "Dragonstone necklace", output: "Equipment siphon", parts_needed: 15, yield_rate: 0.25, limit: 10000}
+        ];
         const COMPONENT_RECIPES = [{item: "Noxious scythe", component: "Noxious components", yield: 1}, {item: "Noxious longbow", component: "Noxious components", yield: 1}, {item: "Dragon rider lance", component: "Ilujankan components", yield: 1}, {item: "Zaros godsword", component: "Ilujankan components", yield: 1}, {item: "Hand cannon", component: "Explosive components", yield: 1}];
 
         let state = { tab: 'Dashboard', sortBy: 'day', prices: null, itemIds: null, masterData: [] };
