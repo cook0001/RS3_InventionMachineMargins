@@ -1,4 +1,59 @@
-<!DOCTYPE html>
+import json
+import os
+import re
+
+def update_web_app():
+    # 1. manifest.json
+    manifest = {
+      "name": "Invention Machine Margins",
+      "short_name": "Inv Margins",
+      "start_url": "index.html",
+      "display": "standalone",
+      "background_color": "#0B0E14",
+      "theme_color": "#38BDF8",
+      "icons": [
+        {
+          "src": "icon.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+    with open(r"C:\Users\danie\Documents\invention_machines\alt1\manifest.json", "w") as f:
+        json.dump(manifest, f, indent=2)
+
+    # 2. sw.js
+    sw_code = """
+const CACHE_NAME = 'inv-margins-v1';
+const urlsToCache = [
+  './index.html',
+  './icon.png',
+  './manifest.json',
+  './appconfig.json'
+];
+
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(urlsToCache))
+  );
+});
+
+self.addEventListener('fetch', event => {
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        if (response) return response;
+        return fetch(event.request);
+      })
+  );
+});
+"""
+    with open(r"C:\Users\danie\Documents\invention_machines\alt1\sw.js", "w") as f:
+        f.write(sw_code)
+
+    # 3. index.html
+    html = """<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -493,4 +548,31 @@
         window.onload = init;
     </script>
 </body>
-</html>
+</html>"""
+    with open(r"C:\Users\danie\Documents\invention_machines\alt1\index.html", "w", encoding="utf-8") as f:
+        f.write(html)
+
+def update_python_app():
+    with open(r"C:\Users\danie\Documents\invention_machines\InventionMachineMargins.py", "r") as f:
+        content = f.read()
+
+    # Modify create_treeview to add Capital
+    content = re.sub(r'def create_treeview\(self, parent, columns, tree_type=""\):', r'def create_treeview(self, parent, columns, tree_type=""):', content)
+    
+    # We will just write a patch that adds Capital to the columns of the treeviews.
+    # Since patching Python with regex is messy, let's just rewrite the specific lines.
+    content = content.replace('("Item", "GE Price", "High Alch", "Buy Limit", "Profit/Item", "Profit/Hr", "Profit/Day")',
+                              '("Item", "GE Price", "High Alch", "Buy Limit", "Profit/Item", "Profit/Day", "Daily Capital")')
+    content = content.replace('values=(i["name"], f"{p:,}", f"{i[\'alch\']:,}", f"{i.get(\'limit\', \'N/A\')}", f"{int(prof):,}", f"{int(prof*25):,}", f"{int(prof*daily_req):,}"),',
+                              'values=(i["name"], f"{p:,}", f"{i[\'alch\']:,}", f"{i.get(\'limit\', \'N/A\')}", f"{int(prof):,}", f"{int(prof*daily_req):,}", f"{int(p*daily_req):,}"),')
+
+    content = content.replace('("Log", "Plank", "Log Price", "Plank Price", "Buy Limit", "Profit/Item", "Profit/Hr", "Profit/Day")',
+                              '("Log", "Plank", "Log Price", "Plank Price", "Buy Limit", "Profit/Item", "Profit/Day", "Daily Capital")')
+    content = content.replace('values=(r["log"], r["plank"], f"{log_p:,}", f"{plank_p:,}", f"{r[\'limit\']}", f"{int(prof):,}", f"{int(prof*40):,}", f"{int(prof*daily_req):,}"),',
+                              'values=(r["log"], r["plank"], f"{log_p:,}", f"{plank_p:,}", f"{r[\'limit\']}", f"{int(prof):,}", f"{int(prof*daily_req):,}", f"{int((log_p+r[\'coin_cost\'])*daily_req):,}"),')
+
+    with open(r"C:\Users\danie\Documents\invention_machines\InventionMachineMargins.py", "w") as f:
+        f.write(content)
+
+update_web_app()
+update_python_app()

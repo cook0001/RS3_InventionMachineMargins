@@ -264,7 +264,7 @@ class InventionProfitApp(tk.Tk):
         self.alch_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.alch_tab, text="Alchemiser Mk. II")
         ttk.Label(self.alch_tab, text="Processes 25 items/hr (600/day). High Alch avoids GE tax.", padding=5).pack(anchor=tk.W)
-        self.alch_tree = self.create_treeview(self.alch_tab, ("Item", "GE Price", "High Alch", "Buy Limit", "Profit/Item", "Profit/Hr", "Profit/Day"), "alch")
+        self.alch_tree = self.create_treeview(self.alch_tab, ("Item", "GE Price", "High Alch", "Buy Limit", "Profit/Item", "Profit/Day", "Daily Capital"), "alch")
         add_frame = ttk.LabelFrame(self.alch_tab, text="Add Custom Item", padding="10")
         add_frame.pack(fill=tk.X, padx=5, pady=10)
         ttk.Label(add_frame, text="Item Name:").pack(side=tk.LEFT, padx=5)
@@ -282,7 +282,7 @@ class InventionProfitApp(tk.Tk):
         self.plank_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.plank_tab, text="Plank Maker")
         ttk.Label(self.plank_tab, text="Processes 40 items/hr (960/day).", padding=5).pack(anchor=tk.W)
-        self.plank_tree = self.create_treeview(self.plank_tab, ("Log", "Plank", "Log Price", "Plank Price", "Buy Limit", "Profit/Item", "Profit/Hr", "Profit/Day"), "plank")
+        self.plank_tree = self.create_treeview(self.plank_tab, ("Log", "Plank", "Log Price", "Plank Price", "Buy Limit", "Profit/Item", "Profit/Day", "Daily Capital"), "plank")
         
     def setup_tanner_tab(self):
         self.tanner_tab = ttk.Frame(self.notebook)
@@ -422,7 +422,7 @@ class InventionProfitApp(tk.Tk):
             p = self.prices.get(i["name"].lower(), 0)
             prof = i["alch"] - (p + nat_price + (ALCH_CHARGES_PER_ITEM * c_cost))
             tag = "bottleneck" if (i.get("limit", 0) * 6) < daily_req and i.get("limit", 0) > 0 else ""
-            self.alch_tree.insert("", tk.END, values=(i["name"], f"{p:,}", f"{i['alch']:,}", f"{i.get('limit', 'N/A')}", f"{int(prof):,}", f"{int(prof*25):,}", f"{int(prof*daily_req):,}"), tags=(tag,))
+            self.alch_tree.insert("", tk.END, values=(i["name"], f"{p:,}", f"{i['alch']:,}", f"{i.get('limit', 'N/A')}", f"{int(prof):,}", f"{int(prof*daily_req):,}", f"{int(p*daily_req):,}"), tags=(tag,))
             self.master_leaderboard.append({"machine": "Alchemiser", "item": i["name"], "profit_item": prof, "profit_day": prof*daily_req})
         if self.alch_tree in self.sort_state:
             c, r = self.sort_state[self.alch_tree]
@@ -437,7 +437,7 @@ class InventionProfitApp(tk.Tk):
             plank_p = self.prices.get(r["plank"].lower(), 0)
             prof = (plank_p * tax) - (log_p + r["coin_cost"] + (PLANK_CHARGES_PER_ITEM * c_cost))
             tag = "bottleneck" if (r["limit"] * 6) < daily_req else ""
-            self.plank_tree.insert("", tk.END, values=(r["log"], r["plank"], f"{log_p:,}", f"{plank_p:,}", f"{r['limit']}", f"{int(prof):,}", f"{int(prof*40):,}", f"{int(prof*daily_req):,}"), tags=(tag,))
+            self.plank_tree.insert("", tk.END, values=(r["log"], r["plank"], f"{log_p:,}", f"{plank_p:,}", f"{r['limit']}", f"{int(prof):,}", f"{int(prof*daily_req):,}", f"{int((log_p+r['coin_cost'])*daily_req):,}"), tags=(tag,))
             self.master_leaderboard.append({"machine": "Plank Maker", "item": f"{r['log']} -> {r['plank']}", "profit_item": prof, "profit_day": prof*daily_req})
         if self.plank_tree in self.sort_state:
             c, r = self.sort_state[self.plank_tree]
