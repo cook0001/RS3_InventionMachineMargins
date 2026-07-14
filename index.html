@@ -7,8 +7,8 @@
     <title>Invention Machine Margins</title>
     <!-- Google Fonts for typography -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script type="module" crossorigin src="/assets/index-CLsrFmTi.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-BLPIGX9u.css">
+    <script type="module" crossorigin src="/assets/index-BWvOmp7X.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-D4J8rhiw.css">
   </head>
   <body>
     <div class="app-background"></div>
@@ -19,10 +19,24 @@
           <p class="subtitle">Alt1 Toolkit Database for Invention Profitability</p>
         </div>
         <div class="header-actions">
-          <button id="add-custom-btn" class="btn primary-btn">+ Add Custom Item</button>
+          <button id="settings-btn" class="btn">⚙️ Settings</button>
+          <button id="add-custom-btn" class="btn primary-btn">+ Custom Item</button>
         </div>
       </header>
       
+      <div class="toolbar glass">
+        <input type="text" id="search-input" placeholder="Search items..." />
+        <select id="sort-select">
+          <option value="profit">Sort: Highest Profit</option>
+          <option value="roi">Sort: Highest ROI %</option>
+        </select>
+        <div class="toolbar-actions">
+          <button id="export-btn" class="btn" title="Export to Clipboard">📤 Export</button>
+          <button id="import-btn" class="btn" title="Import from Clipboard">📥 Import</button>
+          <button id="alt1-btn" class="btn" title="Scan Bank with Alt1">🔍 Scan Bank</button>
+        </div>
+      </div>
+
       <main>
         <div class="tabs">
           <button class="tab active" data-target="alchemiser">Auto Alchemiser</button>
@@ -34,7 +48,7 @@
         <div class="tab-content">
           <div id="alchemiser" class="machine-panel active">
             <div class="panel-header">
-              <h2>Auto Alchemiser Top 25</h2>
+              <h2>Auto Alchemiser</h2>
               <p>Items with the highest high-alchemy profit margins.</p>
             </div>
             <div class="data-table-container">
@@ -44,20 +58,19 @@
                     <th>Item</th>
                     <th>Buy Price</th>
                     <th>Alch Value</th>
-                    <th>Nature Rune</th>
-                    <th>Profit/Item</th>
+                    <th>Costs (Nature+Charge)</th>
+                    <th>Profit</th>
+                    <th>ROI %</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <!-- Filled by JS -->
-                </tbody>
+                <tbody></tbody>
               </table>
             </div>
           </div>
           
           <div id="disassembler" class="machine-panel">
             <div class="panel-header">
-              <h2>Auto Disassembler Top 25</h2>
+              <h2>Auto Disassembler</h2>
               <p>Items yielding highest value parts for charge drains.</p>
             </div>
             <div class="data-table-container">
@@ -66,20 +79,20 @@
                   <tr>
                     <th>Item</th>
                     <th>Buy Price</th>
-                    <th>Component Value</th>
-                    <th>Profit/Item</th>
+                    <th>Est. Parts Value</th>
+                    <th>Costs (Charge)</th>
+                    <th>Profit</th>
+                    <th>ROI %</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <!-- Filled by JS -->
-                </tbody>
+                <tbody></tbody>
               </table>
             </div>
           </div>
 
           <div id="plankmaker" class="machine-panel">
             <div class="panel-header">
-              <h2>Plank Maker Top 25</h2>
+              <h2>Plank Maker</h2>
               <p>Logs converting to planks for profit.</p>
             </div>
             <div class="data-table-container">
@@ -89,19 +102,19 @@
                     <th>Log Type</th>
                     <th>Log Price</th>
                     <th>Plank Price</th>
-                    <th>Profit/Item</th>
+                    <th>Costs (Nature+Charge)</th>
+                    <th>Profit</th>
+                    <th>ROI %</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <!-- Filled by JS -->
-                </tbody>
+                <tbody></tbody>
               </table>
             </div>
           </div>
 
           <div id="tanner" class="machine-panel">
             <div class="panel-header">
-              <h2>Hide Tanner Top 25</h2>
+              <h2>Hide Tanner</h2>
               <p>Hides converting to leathers for profit.</p>
             </div>
             <div class="data-table-container">
@@ -111,12 +124,12 @@
                     <th>Hide Type</th>
                     <th>Hide Price</th>
                     <th>Leather Price</th>
-                    <th>Profit/Item</th>
+                    <th>Costs (Charge)</th>
+                    <th>Profit</th>
+                    <th>ROI %</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <!-- Filled by JS -->
-                </tbody>
+                <tbody></tbody>
               </table>
             </div>
           </div>
@@ -124,17 +137,17 @@
       </main>
     </div>
 
-    <!-- Modal for Adding Custom Item -->
+    <!-- Modals -->
     <div id="custom-modal" class="modal-overlay hidden">
       <div class="modal-content glass">
         <div class="modal-header">
           <h3>Add Custom Item</h3>
-          <button id="close-modal" class="close-btn">&times;</button>
+          <button id="close-custom" class="close-btn">&times;</button>
         </div>
         <div class="modal-body">
           <form id="custom-item-form">
             <div class="form-group">
-              <label for="machine-select">Machine Type</label>
+              <label>Machine Type</label>
               <select id="machine-select" required>
                 <option value="alchemiser">Auto Alchemiser</option>
                 <option value="disassembler">Auto Disassembler</option>
@@ -143,16 +156,16 @@
               </select>
             </div>
             <div class="form-group">
-              <label for="item-name">Item Name</label>
-              <input type="text" id="item-name" placeholder="e.g., Rune 2h sword" required />
+              <label>Item Name</label>
+              <input type="text" id="item-name" required />
             </div>
             <div class="form-group">
-              <label for="buy-price">Buy Price (GE)</label>
-              <input type="number" id="buy-price" placeholder="e.g., 37500" required />
+              <label>Buy Price (GE)</label>
+              <input type="number" id="buy-price" required />
             </div>
             <div class="form-group">
-              <label for="value-out">Value Out (Alch/Comp/Processed)</label>
-              <input type="number" id="value-out" placeholder="e.g., 38400" required />
+              <label>Value Out</label>
+              <input type="number" id="value-out" required />
             </div>
             <div class="form-actions">
               <button type="submit" class="btn primary-btn">Add Item</button>
@@ -161,6 +174,35 @@
         </div>
       </div>
     </div>
+
+    <div id="settings-modal" class="modal-overlay hidden">
+      <div class="modal-content glass">
+        <div class="modal-header">
+          <h3>Machine Settings</h3>
+          <button id="close-settings" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="settings-form">
+            <div class="form-group">
+              <label>Divine Charge Cost</label>
+              <input type="number" id="divine-charge-cost" value="100000" />
+              <small style="color:var(--text-secondary)">Overrides Live GE API if > 0</small>
+            </div>
+            <div class="form-group">
+              <label>Machine Tier</label>
+              <select id="machine-tier">
+                <option value="1">Base (Standard Cost)</option>
+                <option value="2">Jumbo / MK II (Reduced Cost)</option>
+              </select>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn primary-btn">Save Settings</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
     
+    <script src="https://runeapps.org/alt1/a1lib.js"></script>
   </body>
 </html>
