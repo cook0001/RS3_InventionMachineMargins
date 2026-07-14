@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Invention Machine Margins</title>
+    <!-- Google Fonts for typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/index-CLsrFmTi.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-BLPIGX9u.css">
+  </head>
+  <body>
+    <div class="app-background"></div>
+    <div id="app">
+      <header>
+        <div class="header-content">
+          <h1>Machine Margins</h1>
+          <p class="subtitle">Alt1 Toolkit Database for Invention Profitability</p>
+        </div>
+        <div class="header-actions">
+          <button id="add-custom-btn" class="btn primary-btn">+ Add Custom Item</button>
+        </div>
+      </header>
+      
+      <main>
+        <div class="tabs">
+          <button class="tab active" data-target="alchemiser">Auto Alchemiser</button>
+          <button class="tab" data-target="disassembler">Auto Disassembler</button>
+          <button class="tab" data-target="plankmaker">Plank Maker</button>
+          <button class="tab" data-target="tanner">Hide Tanner</button>
+        </div>
+
+        <div class="tab-content">
+          <div id="alchemiser" class="machine-panel active">
+            <div class="panel-header">
+              <h2>Auto Alchemiser Top 25</h2>
+              <p>Items with the highest high-alchemy profit margins.</p>
+            </div>
+            <div class="data-table-container">
+              <table id="alchemiser-table" class="data-table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Buy Price</th>
+                    <th>Alch Value</th>
+                    <th>Nature Rune</th>
+                    <th>Profit/Item</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Filled by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+          
+          <div id="disassembler" class="machine-panel">
+            <div class="panel-header">
+              <h2>Auto Disassembler Top 25</h2>
+              <p>Items yielding highest value parts for charge drains.</p>
+            </div>
+            <div class="data-table-container">
+              <table id="disassembler-table" class="data-table">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Buy Price</th>
+                    <th>Component Value</th>
+                    <th>Profit/Item</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Filled by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="plankmaker" class="machine-panel">
+            <div class="panel-header">
+              <h2>Plank Maker Top 25</h2>
+              <p>Logs converting to planks for profit.</p>
+            </div>
+            <div class="data-table-container">
+              <table id="plankmaker-table" class="data-table">
+                <thead>
+                  <tr>
+                    <th>Log Type</th>
+                    <th>Log Price</th>
+                    <th>Plank Price</th>
+                    <th>Profit/Item</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Filled by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div id="tanner" class="machine-panel">
+            <div class="panel-header">
+              <h2>Hide Tanner Top 25</h2>
+              <p>Hides converting to leathers for profit.</p>
+            </div>
+            <div class="data-table-container">
+              <table id="tanner-table" class="data-table">
+                <thead>
+                  <tr>
+                    <th>Hide Type</th>
+                    <th>Hide Price</th>
+                    <th>Leather Price</th>
+                    <th>Profit/Item</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <!-- Filled by JS -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </main>
+    </div>
+
+    <!-- Modal for Adding Custom Item -->
+    <div id="custom-modal" class="modal-overlay hidden">
+      <div class="modal-content glass">
+        <div class="modal-header">
+          <h3>Add Custom Item</h3>
+          <button id="close-modal" class="close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+          <form id="custom-item-form">
+            <div class="form-group">
+              <label for="machine-select">Machine Type</label>
+              <select id="machine-select" required>
+                <option value="alchemiser">Auto Alchemiser</option>
+                <option value="disassembler">Auto Disassembler</option>
+                <option value="plankmaker">Plank Maker</option>
+                <option value="tanner">Hide Tanner</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="item-name">Item Name</label>
+              <input type="text" id="item-name" placeholder="e.g., Rune 2h sword" required />
+            </div>
+            <div class="form-group">
+              <label for="buy-price">Buy Price (GE)</label>
+              <input type="number" id="buy-price" placeholder="e.g., 37500" required />
+            </div>
+            <div class="form-group">
+              <label for="value-out">Value Out (Alch/Comp/Processed)</label>
+              <input type="number" id="value-out" placeholder="e.g., 38400" required />
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn primary-btn">Add Item</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    
+  </body>
+</html>
