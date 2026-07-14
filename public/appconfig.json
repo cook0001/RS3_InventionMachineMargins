@@ -1,0 +1,13 @@
+{
+  "name": "Invention Machine Database",
+  "description": "Finds profitable items for your RS3 invention machines.",
+  "version": "1.0.0",
+  "configUrl": "https://invent.armstrader.store/",
+  "actions": [
+    {
+      "name": "Open",
+      "url": "https://invent.armstrader.store/"
+    }
+  ],
+  "author": "armstrader"
+}
