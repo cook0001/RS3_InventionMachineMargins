@@ -114,7 +114,44 @@ header {
   transform: translateY(-2px);
 }
 
-/* Tabs */
+/* Tabs & Toolbar */
+.toolbar {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#search-input {
+  flex: 1;
+  min-width: 200px;
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+}
+
+#sort-select {
+  padding: 0.75rem 1rem;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  cursor: pointer;
+}
+#sort-select option {
+  background: var(--bg-color);
+}
+
+.toolbar-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 .tabs {
   display: flex;
   gap: 1rem;
