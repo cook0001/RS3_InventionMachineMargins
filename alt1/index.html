@@ -751,46 +751,57 @@
             resDiv.innerHTML = desc;
         }
 
-        async function fetchPrices(manual = false) {
+                async function fetchPrices(manual = false) {
             document.getElementById('status-dot').className = 'status-dot loading';
-            document.getElementById('status-text').textContent = 'Fetching prices...';
-            let names = ["Divine charge", "Empty divine charge", "Nature rune", "Vial of water", "Spring", "Equipment siphon"];
-            [...DEFAULT_ALCH_ITEMS, ...settings.customAlch].forEach(i => names.push(i.name));
-            PLANK_RECIPES.forEach(r => names.push(r.log, r.plank));
-            TANNER_RECIPES.forEach(r => names.push(r.hide, r.leather));
-            POTION_RECIPES.forEach(r => names.push(r.herb, r.potion));
-            DISASSEMBLE_RECIPES.forEach(r => names.push(r.item, r.output));
-            COMPONENT_RECIPES.forEach(r => names.push(r.item));
+            document.getElementById('status-text').textContent = 'Fetching RS dump...';
             
-            let uniqueNames = [...new Set(names)];
-            let newPrices = {};
-            let newIds = {};
             try {
-                for (let i = 0; i < uniqueNames.length; i += 40) {
-                    const chunk = uniqueNames.slice(i, i + 40);
-                    const url = `https://api.weirdgloop.org/exchange/history/rs/latest?name=${encodeURIComponent(chunk.join('|'))}`;
-                    const res = await fetch(url);
-                    const data = await res.json();
-                    for (const [k, v] of Object.entries(data)) { 
-                        newPrices[k.toLowerCase()] = v.price; 
-                        newIds[k.toLowerCase()] = v.id;
+                // Fetch the massive RS dump for all items
+                const res = await fetch(`https://chisel.weirdgloop.org/gazproj/gazbot/rs_dump.json`);
+                const dumpData = await res.json();
+                
+                let newPrices = {};
+                let newIds = {};
+                let allAlchItems = [];
+                
+                for (const key in dumpData) {
+                    const item = dumpData[key];
+                    if (!item.name) continue;
+                    const lowerName = item.name.toLowerCase();
+                    newPrices[lowerName] = item.price;
+                    newIds[lowerName] = item.id;
+                    
+                    if (item.highalch && item.highalch > 0 && item.limit && item.limit > 0) {
+                        allAlchItems.push({
+                            name: item.name,
+                            alch: item.highalch,
+                            limit: item.limit,
+                            price: item.price,
+                            id: item.id
+                        });
                     }
                 }
+                
                 state.prices = newPrices;
                 state.itemIds = newIds;
+                state.allAlchItems = allAlchItems;
+                
+                // Save a lightweight version to cache (just prices and IDs, allAlchItems can be reconstructed)
                 localStorage.setItem('inv_margins_cache_v3', JSON.stringify({prices: newPrices, itemIds: newIds}));
+                
                 calculateData();
                 document.getElementById('status-dot').className = 'status-dot';
                 document.getElementById('status-text').textContent = 'Live';
             } catch (err) {
                 if(!state.prices) {
                     document.getElementById('status-dot').className = 'status-dot error';
-                    document.getElementById('status-text').textContent = 'Error';
+                    document.getElementById('status-text').textContent = 'Error fetching dump';
                 }
             }
         }
+        }
 
-        function calculateData() {
+                function calculateData() {
             const prices = state.prices;
             if (!prices) return;
             const tax = settings.tax ? 0.98 : 1.0;
@@ -802,19 +813,45 @@
 
             let master = [];
 
+            // --- DYNAMIC ALCHEMISER (TOP 25 ALL ITEMS) ---
             const alchDaily = MACHINES["Alchemiser"][t].iph * 24;
             const natPrice = prices["nature rune"] || 0;
-            [...DEFAULT_ALCH_ITEMS, ...settings.customAlch].forEach(i => {
+            let alchCandidates = [];
+            
+            if (state.allAlchItems) {
+                state.allAlchItems.forEach(i => {
+                    const p = prices[i.name.toLowerCase()] || i.price || 0;
+                    if (p <= 0) return;
+                    const cost = p + natPrice + (MACHINES["Alchemiser"][t].cpi * cCost);
+                    const prof = i.alch - cost;
+                    
+                    if (prof > 0) {
+                        alchCandidates.push({
+                            machine: "Alchemiser", item: i.name, profitItem: prof, profitDay: prof * alchDaily,
+                            bottleneck: (i.limit * 6) < alchDaily, limit: i.limit, iconName: i.name, iconId: i.id,
+                            capital: p * alchDaily, details: `<div>Daily Capital Req: <strong>${formatNum(p * alchDaily)}</strong></div><div>Uptime: <strong>${(MACHINES["Alchemiser"][t].cap / alchDaily).toFixed(1)} Days</strong></div><div>Formula: ${formatNum(i.alch)} - ${formatNum(p)} - ${formatNum(natPrice)} - ${formatNum(MACHINES["Alchemiser"][t].cpi * cCost)}</div>`
+                        });
+                    }
+                });
+                
+                // Sort and take top 25 dynamically fetched items
+                alchCandidates.sort((a, b) => b.profitDay - a.profitDay);
+                alchCandidates.slice(0, 25).forEach(c => master.push(c));
+            }
+
+            // Custom Alch Items (Always include if user added them)
+            settings.customAlch.forEach(i => {
                 const p = prices[i.name.toLowerCase()] || 0;
                 const cost = p + natPrice + (MACHINES["Alchemiser"][t].cpi * cCost);
                 const prof = i.alch - cost;
                 master.push({
-                    machine: "Alchemiser", item: i.name, profitItem: prof, profitDay: prof * alchDaily,
-                    bottleneck: (i.limit * 6) < alchDaily, limit: i.limit, iconName: i.name, iconId: state.itemIds[i.name.toLowerCase()],
-                    capital: p * alchDaily, details: `<div>Daily Capital Req: <strong>${formatNum(p * alchDaily)}</strong></div><div>Uptime: <strong>${(MACHINES["Alchemiser"][t].cap / alchDaily).toFixed(1)} Days</strong></div><div>Formula: ${formatNum(i.alch)} - ${formatNum(p)} - ${formatNum(natPrice)} - ${formatNum(MACHINES["Alchemiser"][t].cpi * cCost)}</div>`
+                    machine: "Alchemiser", item: i.name + ' (Custom)', profitItem: prof, profitDay: prof * alchDaily,
+                    bottleneck: (i.limit * 6) < alchDaily, limit: i.limit, iconName: i.name, iconId: state.itemIds ? state.itemIds[i.name.toLowerCase()] : null,
+                    capital: p * alchDaily, details: `<div>Daily Capital Req: <strong>${formatNum(p * alchDaily)}</strong></div><div>Uptime: <strong>${(MACHINES["Alchemiser"][t].cap / alchDaily).toFixed(1)} Days</strong></div>`
                 });
             });
 
+            // --- PLANK MAKER ---
             const plankDaily = MACHINES["Plank Maker"][t].iph * 24;
             PLANK_RECIPES.forEach(r => {
                 const logP = prices[r.log.toLowerCase()] || 0;
@@ -823,11 +860,12 @@
                 const prof = (plankP * tax) - cost;
                 master.push({
                     machine: "Plank Maker", item: `${r.log} ➔ ${r.plank}`, profitItem: prof, profitDay: prof * plankDaily,
-                    bottleneck: (r.limit * 6) < plankDaily, limit: r.limit, iconName: r.plank, iconId: state.itemIds[r.plank.toLowerCase()],
+                    bottleneck: (r.limit * 6) < plankDaily, limit: r.limit, iconName: r.plank, iconId: state.itemIds ? state.itemIds[r.plank.toLowerCase()] : null,
                     capital: (logP + r.coin_cost) * plankDaily, details: `<div>Daily Capital Req: <strong>${formatNum((logP + r.coin_cost) * plankDaily)}</strong></div><div>Uptime: <strong>${(MACHINES["Plank Maker"][t].cap / plankDaily).toFixed(1)} Days</strong></div>`
                 });
             });
             
+            // --- HIDE TANNER ---
             const tannerDaily = MACHINES["Hide Tanner"][t].iph * 24;
             TANNER_RECIPES.forEach(r => {
                 const hideP = prices[r.hide.toLowerCase()] || 0;
@@ -836,11 +874,12 @@
                 const prof = (leaP * tax) - cost;
                 master.push({
                     machine: "Hide Tanner", item: `${r.hide} ➔ ${r.leather}`, profitItem: prof, profitDay: prof * tannerDaily,
-                    bottleneck: (r.limit * 6) < tannerDaily, limit: r.limit, iconName: r.leather, iconId: state.itemIds[r.leather.toLowerCase()],
+                    bottleneck: (r.limit * 6) < tannerDaily, limit: r.limit, iconName: r.leather, iconId: state.itemIds ? state.itemIds[r.leather.toLowerCase()] : null,
                     capital: (hideP + r.coin_cost) * tannerDaily, details: `<div>Daily Capital Req: <strong>${formatNum((hideP + r.coin_cost) * tannerDaily)}</strong></div><div>Uptime: <strong>${(MACHINES["Hide Tanner"][t].cap / tannerDaily).toFixed(1)} Days</strong></div>`
                 });
             });
 
+            // --- POTION PRODUCER ---
             const potDaily = MACHINES["Potion Producer"][t].iph * 24;
             const vialP = prices["vial of water"] || 0;
             POTION_RECIPES.forEach(r => {
@@ -850,11 +889,12 @@
                 const prof = (potP * tax) - cost;
                 master.push({
                     machine: "Potion Producer", item: `${r.herb} ➔ ${r.potion}`, profitItem: prof, profitDay: prof * potDaily,
-                    bottleneck: (r.limit * 6) < potDaily, limit: r.limit, iconName: r.potion, iconId: state.itemIds[r.potion.toLowerCase()],
+                    bottleneck: (r.limit * 6) < potDaily, limit: r.limit, iconName: r.potion, iconId: state.itemIds ? state.itemIds[r.potion.toLowerCase()] : null,
                     capital: (herbP + vialP) * potDaily, details: `<div>Daily Capital Req: <strong>${formatNum((herbP + vialP) * potDaily)}</strong></div><div>Uptime: <strong>${(MACHINES["Potion Producer"][t].cap / potDaily).toFixed(1)} Days</strong></div>`
                 });
             });
 
+            // --- AUTO DISASSEMBLER (Curated list due to complex junk chance math) ---
             const disDaily = MACHINES["Auto Disassembler"][t].iph * 24;
             DISASSEMBLE_RECIPES.forEach(r => {
                 const itemP = prices[r.item.toLowerCase()] || 0;
@@ -866,11 +906,12 @@
                 const profHr = prodHr * profPerProd;
                 master.push({
                     machine: "Auto Disassembler", item: `${r.item} ➔ ${r.output}`, profitItem: profPerProd, profitDay: profHr * 24,
-                    bottleneck: (r.limit * 6) < (disDaily * itemsNeeded), limit: r.limit, iconName: r.output, iconId: state.itemIds[r.output.toLowerCase()],
+                    bottleneck: (r.limit * 6) < (disDaily * itemsNeeded), limit: r.limit, iconName: r.output, iconId: state.itemIds ? state.itemIds[r.output.toLowerCase()] : null,
                     capital: itemP * (disDaily * itemsNeeded), details: `<div>Daily Capital Req: <strong>${formatNum(itemP * (disDaily * itemsNeeded))}</strong></div><div>Uptime: <strong>${(MACHINES["Auto Disassembler"][t].cap / (disDaily * itemsNeeded)).toFixed(1)} Days</strong></div>`
                 });
             });
 
+            // --- COMPONENTS ---
             COMPONENT_RECIPES.forEach(r => {
                 const itemP = prices[r.item.toLowerCase()] || 0;
                 const compVal = itemP / r.yield;
