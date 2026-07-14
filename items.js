@@ -51,11 +51,20 @@ export const ITEM_DATA = {
 };
 
 export async function fetchLivePrices() {
-  const ids = Object.keys(ITEM_DATA).join('|');
+  const ids = Object.keys(ITEM_DATA);
+  const chunkSize = 20;
+  let allData = {};
+  
   try {
-    const res = await fetch(`https://api.weirdgloop.org/exchange/history/rs/latest?id=${ids}`);
-    const data = await res.json();
-    return data;
+    // Chunk the IDs to respect API limits (max 25 per request)
+    for (let i = 0; i < ids.length; i += chunkSize) {
+      const chunk = ids.slice(i, i + chunkSize).join('|');
+      const res = await fetch(`https://api.weirdgloop.org/exchange/history/rs/latest?id=${chunk}`);
+      if (!res.ok) throw new Error(`API returned ${res.status}`);
+      const data = await res.json();
+      allData = { ...allData, ...data };
+    }
+    return allData;
   } catch (err) {
     console.error('Failed to fetch live prices', err);
     return null;
