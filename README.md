@@ -1,3 +1,4 @@
+Still a work in progress
 # RS3 Invention Machine Margins ⚙️
 
 An elegant, premium-designed Alt1 Toolkit application for calculating and tracking profitable items for Runescape 3 Invention Machines.
